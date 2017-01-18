@@ -6,11 +6,12 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="/socket.io/socket.io.js" charset="utf-8"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="js/helper.js" charset="utf-8"></script>
   </head>
   <body>
     <h1>Card Games</h1>
-    <h2>New Game</h2>
     <form id="new-game" action="">
+      <h2>New Game</h2>
       <select name="game">
         <option value="war">War</option>
       </select>
@@ -18,13 +19,16 @@
       <input type="text" placeholder="Room name" name="roomName" pattern="[a-zA-Z0-9]{3,20}" required>
       <button type="submit">Start</button>
     </form>
-    <h2>Join Game</h2>
     <form id="join-game" action="">
-      <input type="text" name="code" pattern="[A-Z]{4}" required>
+      <h2>Join Game</h2>
+      <input type="text" placeholder="User name" name="name" pattern="[a-zA-Z0-9]{3,20}" required>
+      <input type="text" placeholder="Room code" name="code" pattern="[A-Z]{4}" required>
       <button type="submit">Join</button>
     </form>
-    <h3>Rooms</h3>
-    <ul id="rooms"></ul>
+    <form id="active-game" action="">
+      <button type="submit">Shuffle</button>
+      <ul id="actions"></ul>
+    </form>
   <script src="js/main.js" charset="utf-8"></script>
   </body>
 </html>

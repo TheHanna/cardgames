@@ -1,20 +1,40 @@
 const connection = io();
+const $newGameForm = $('#new-game');
+const $joinGameForm = $('#join-game');
+const $activeGameForm = $('#active-game');
+const $actions = $('#actions');
+const $roomList = $('#rooms');
+const $title = $('h1');
 
-$('#new-game').submit((evt) => {
+function createNewGame(evt) {
   evt.preventDefault();
-  console.log($(evt.target).serializeArray());
-  $.get(`/validate?${$(evt.target).serialize()}`, (res) => {
-    if (res.valid) {
-      connection.emit('join', res.params);
-    }
-  });
+  let form = $(evt.target);
+  connection.emit('create', form.serializeObject());
+}
+
+function joinExistingGame(evt) {
+  evt.preventDefault();
+  let form = $(evt.target);
+  connection.emit('join', form.serializeObject());
+}
+
+function shuffleDeck(evt) {
+  evt.preventDefault();
+  connection.emit('shuffle');
+}
+
+$newGameForm.submit(createNewGame);
+$joinGameForm.submit(joinExistingGame);
+$activeGameForm.submit(shuffleDeck);
+
+// Listen for event from socket
+connection.on('joined', (room) => {
+  $joinGameForm.hide();
+  $newGameForm.hide();
+  $activeGameForm.removeClass('hide');
+  $title.text(room.name);
 });
 
-$('#join-game').submit((evt) => {
-  evt.preventDefault();
-  connection.emit('join', $('#join-game input').val());
-})
-
-connection.on('joined', (room) => {
-  $('#rooms').append(`<li>${room.name} (${room.code})</li>`);
-})
+connection.on('shuffled', (res) => {
+  $actions.append(`<li>${res}</li>`);
+});

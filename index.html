@@ -12,11 +12,11 @@
     <h1>Card Games</h1>
     <form id="new-game" action="">
       <h2>New Game</h2>
-      <select name="game">
+      <!-- <select name="game">
         <option value="war">War</option>
-      </select>
+      </select> -->
       <input type="text" placeholder="User name" name="name" pattern="[a-zA-Z0-9]{3,20}" required>
-      <input type="text" placeholder="Room name" name="roomName" pattern="[a-zA-Z0-9]{3,20}" required>
+      <input type="text" placeholder="Room name" name="room" pattern="[a-zA-Z0-9]{3,20}" required>
       <button type="submit">Start</button>
     </form>
     <form id="join-game" action="">
@@ -26,9 +26,16 @@
       <button type="submit">Join</button>
     </form>
     <form id="active-game" action="">
-      <button type="submit">Shuffle</button>
-      <ul id="actions"></ul>
+      <div id="owner" class="hide">
+        <button type="submit">Shuffle</button>
+        <button type="submit">Start</button>
+      </div>
+      <div id="player" class="hide">
+        <button type="submit">Placeholder</button>
+      </div>
     </form>
+    <ul id="actions"></ul>
+    <ul id="rooms"></ul>
   <script src="js/main.js" charset="utf-8"></script>
   </body>
 </html>

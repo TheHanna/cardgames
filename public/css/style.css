@@ -1,3 +1,7 @@
-#active-game.hide {
+.hide {
   display: none;
+}
+
+.error {
+  color: red;
 }

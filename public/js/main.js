@@ -5,6 +5,7 @@ const $activeGameForm = $('#active-game');
 const $actions = $('#actions');
 const $roomList = $('#rooms');
 const $title = $('h1');
+const $code = jQuery('<span/>', {id: 'game-code'});
 
 function createNewGame(evt) {
   evt.preventDefault();
@@ -18,21 +19,40 @@ function joinExistingGame(evt) {
   connection.emit('join', form.serializeObject());
 }
 
-function shuffleDeck(evt) {
+function handlePlayerInput(evt) {
   evt.preventDefault();
-  connection.emit('shuffle');
+  console.log(evt.target.id);
+  // connection.emit('shuffle');
+}
+
+function joined(room) {
+  $joinGameForm.hide();
+  $newGameForm.hide();
+  $code.text(`(${room.code})`);
+  $title.html(`${room.name} `).append($code);
 }
 
 $newGameForm.submit(createNewGame);
 $joinGameForm.submit(joinExistingGame);
-$activeGameForm.submit(shuffleDeck);
+$activeGameForm.submit(handlePlayerInput);
 
 // Listen for event from socket
-connection.on('joined', (room) => {
-  $joinGameForm.hide();
-  $newGameForm.hide();
-  $activeGameForm.removeClass('hide');
-  $title.text(room.name);
+connection.on('join::player', (room) => {
+  joined(room);
+  $('#player').removeClass('hide');
+});
+
+connection.on('join::owner', (room) => {
+  joined(room);
+  $('#owner').removeClass('hide');
+});
+
+connection.on('create', (room) => {
+  $roomList.append(`<li>${room.name}</li>`)
+});
+
+connection.on('join::error', (message) => {
+  $actions.append(`<li class="error">${message}</li>`);
 });
 
 connection.on('shuffled', (res) => {

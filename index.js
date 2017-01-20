@@ -24,24 +24,28 @@ io.on('connection', (socket) => {
   debug(socket.id, 'connected');
   // TODO: Abstract connection out to player class
   // TODO: Figure out reconnection
+  socket.on('init', (data) => {
+    debug(socket.id, 'named', data.name);
+    socket.name = data.name;
+  });
+  socket.on('dude::bro', (data) => {
+    console.log(data);
+  });
   socket.on('create', (params) => {
     debug(socket.id, 'begin room creation', params.room);
-    socket.name = params.name;  // Assign the socket the name provided by the game creator
     Rooms.create(socket, params); // Create the room inside the room manager
   });
   socket.on('join', (params) => {
-    socket.name = params.name;
+    debug(socket.id, 'join room', params.code);
     Rooms.join(socket, params.code);
+  });
+  socket.on('leave', () => {
+    console.log(socket.rooms);
   });
   socket.on('shuffle', () => {
     console.log('shuffling');
     // TODO: figure out how to allow only shuffling of the current game
     // TODO: figure out how to allow only shuffling by the current dealer
-  });
-  socket.on('disconnecting', () => {
-    console.log(socket.id, 'is about to disconnect');
-    console.log(socket.rooms);
-    // TODO: Check disconnecting users rooms; start destruction countdown if user count is zero upon current user leaving; promote other user to owner otherwise
   });
   socket.on('disconnect', () => {
     console.log(socket.id, 'disconnected!');

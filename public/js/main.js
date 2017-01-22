@@ -1,4 +1,5 @@
 let connection;
+let code;
 const $connectForm = $('#connect');
 const $leave = $('#leave');
 const $disconnect = $('#disconnect');
@@ -11,6 +12,10 @@ const $title = $('h1');
 const $code = jQuery('<span/>', {id: 'game-code'});
 
 function socketSetup() {
+  connection.on('create', (room) => {
+    $roomList.append(`<li>${room.name}</li>`);
+  });
+
   connection.on('join::player', (room) => {
     joined(room);
     $('#player').removeClass('hide');
@@ -21,12 +26,12 @@ function socketSetup() {
     $('#owner').removeClass('hide');
   });
 
-  connection.on('create', (room) => {
-    $roomList.append(`<li>${room.name}</li>`);
-  });
-
   connection.on('join::error', (message) => {
     $actions.append(`<li class="error">${message}</li>`);
+  });
+
+  connection.on('leave', (room) => {
+    $actions.append(`<li class="error">${room}</li>`);
   });
 
   connection.on('shuffled', (res) => {
@@ -69,18 +74,19 @@ function joinExistingGame(evt) {
 
 function leaveRoom(evt) {
   evt.preventDefault();
-  connection.emit('leave');
+  connection.emit('leave', code);
 }
 
 function handlePlayerInput(evt) {
   evt.preventDefault();
   console.log(evt.target.id);
-  // connection.emit('shuffle');
+  connection.emit('shuffle');
 }
 
 function joined(room) {
   $joinGameForm.hide();
   $newGameForm.hide();
+  code = room.code;
   $code.text(`(${room.code})`);
   $title.html(`${room.name} `).append($code);
 }

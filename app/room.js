@@ -1,4 +1,3 @@
-// const winston = require('winston');
 class Room {
   constructor(socket, params) {
     socket.role = 'owner';
@@ -9,9 +8,6 @@ class Room {
       name: socket.name
     };
     this.occupants = [];
-    // this.join(socket, this.code);
-    // this.game;
-    // this.players;
   }
 }
 

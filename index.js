@@ -24,31 +24,30 @@ io.on('connection', (socket) => {
   debug(socket.id, 'connected');
   // TODO: Abstract connection out to player class
   // TODO: Figure out reconnection
-  socket.on('init', (data) => {
-    debug(socket.id, 'named', data.name);
-    socket.name = data.name;
+  socket.on('init', (params) => {
+    debug(socket.id, 'named', params.name);
+    socket.name = params.name;
   });
-  socket.on('dude::bro', (data) => {
-    console.log(data);
+  socket.on('dude::bro', (params) => {
+    debug(params);
   });
   socket.on('create', (params) => {
     debug(socket.id, 'begin room creation', params.room);
     Rooms.create(socket, params); // Create the room inside the room manager
   });
   socket.on('join', (params) => {
-    debug(socket.id, 'join room', params.code);
     Rooms.join(socket, params.code);
   });
-  socket.on('leave', () => {
-    console.log(socket.rooms);
+  socket.on('leave', (code) => {
+    Rooms.leave(socket, code);
   });
   socket.on('shuffle', () => {
-    console.log('shuffling');
+    debug('shuffling');
     // TODO: figure out how to allow only shuffling of the current game
     // TODO: figure out how to allow only shuffling by the current dealer
   });
   socket.on('disconnect', () => {
-    console.log(socket.id, 'disconnected!');
+    debug(socket.id, 'disconnected!');
   });
 });
 

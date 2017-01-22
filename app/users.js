@@ -1,8 +1,9 @@
-const winston = require('winston');
+const Base = require('./base.js');
 const User = require('./user.js');
 
-class Users {
+class Users extends Base {
   constructor() {
+    super();
     this._users = {};
   }
 
@@ -13,7 +14,7 @@ class Users {
 
   create(socket) {
     let user = new User(socket);
-    this._users[id] = user;
+    this._users[user.id] = user;
   }
 
   find(id) {
@@ -23,15 +24,10 @@ class Users {
   list() {
     for (let user in this._users) {
       if (this._users.hasOwnProperty(user)) {
-        console.log(user);
+        debug(user);
       }
     }
     return this._users;
-  }
-
-  error(socket, message) {
-    winston.log('error', message);
-    socket.emit('join::error', message);
   }
 }
 

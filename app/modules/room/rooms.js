@@ -1,6 +1,8 @@
 const debug = require('debug')('cardgames:rooms');
-const Base = require('./base.js');
+const Base = require('../base.js');
 const Room = require('./room.js');
+const ROOM_CODE_STRING = require('../../config/app.constants.js').ROOM_CODE_STRING;
+const ROOM_CODE_LENGTH = require('../../config/app.constants.js').ROOM_CODE_LENGTH;
 
 class Rooms extends Base {
   constructor() {
@@ -10,8 +12,9 @@ class Rooms extends Base {
 
   generateRoomCode() {
     let code = ''; // Blank string to store code string
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; // TODO: Move this to a constant/config
-    for (let position = 0; position < 4; position++) { // TODO: Move code length to constant/config
+    const possible = ROOM_CODE_STRING;
+    const max = ROOM_CODE_LENGTH;
+    for (let position = 0; position < max; position++) {
       code += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     // Validate the room code

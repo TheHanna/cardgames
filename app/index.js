@@ -11,9 +11,9 @@ const io = require('socket.io')(http);
 //     }
 //   }
 // };
-const Rooms = new (require('./app/rooms.js'));
+const Rooms = new (require('./modules/room/rooms.js'));
 
-app.use(express.static(`${__dirname}/public`));
+app.use(express.static(`${__dirname}/../public`));
 
 app.get('/', (req, res) => {
   res.sendFile(`${__dirname}/index.html`);

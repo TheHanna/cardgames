@@ -1,4 +1,4 @@
-const Base = require('./base.js');
+const Base = require('..s/base.js');
 const User = require('./user.js');
 
 class Users extends Base {

@@ -15,18 +15,13 @@
       <input type="text" placeholder="User name" name="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
       <button type="submit">Connect</button>
     </form>
-    <form id="new-game" action="" class="hide">
-      <h2>New Game</h2>
-      <!-- <select name="game">
-        <option value="war">War</option>
-      </select> -->
-      <!-- <input type="text" placeholder="User name" name="name" pattern="[a-zA-Z0-9 ]{3,20}" required> -->
+    <form id="new-room" action="" class="hide">
+      <h2>New Room</h2>
       <input type="text" placeholder="Room name" name="room" pattern="[a-zA-Z0-9 ]{3,20}" required>
       <button type="submit">Start</button>
     </form>
-    <form id="join-game" action="" class="hide">
+    <form id="join-room" action="" class="hide">
       <h2>Join Game</h2>
-      <!-- <input type="text" placeholder="User name" name="name" pattern="[a-zA-Z0-9]{3,20}" required> -->
       <input type="text" placeholder="Room code" name="code" pattern="[A-Z]{4}" required>
       <button type="submit">Join</button>
     </form>
@@ -34,11 +29,12 @@
       <div id="owner" class="hide">
         <button type="submit">Shuffle</button>
         <button type="submit">Start</button>
-        <button id="leave">Leave</button>
-        <button id="disconnect">Disconnect</button>
+        <button class="leave">Leave</button>
+        <button class="disconnect">Disconnect</button>
       </div>
       <div id="player" class="hide">
-        <button id="disconnect">Disconnect</button>
+        <button class="leave">Leave</button>
+        <button class="disconnect">Disconnect</button>
       </div>
     </form>
     <ul id="actions"></ul>

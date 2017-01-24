@@ -1,104 +1,70 @@
-let connection;
-let code;
+let connection = io();
 let user;
-const $connectForm = $('#connect');
-const $leave = $('.leave');
-const $disconnect = $('.disconnect');
-const $newRoomForm = $('#new-room');
-const $joinRoomForm = $('#join-room');
-const $activeGameForm = $('#active-game');
-const $actions = $('#actions');
-const $roomList = $('#rooms');
-const $title = $('h1');
-const $code = jQuery('<span/>', {id: 'game-code'});
 
-function socketSetup() {
-  connection.on('user::create', (id) => {
-    console.log(id);
-    user = id;
-  });
+let actionList = new Vue({
+  el: '#actionList',
+  data: {
+    actions: []
+  }
+});
 
-  connection.on('user::disconnect', () => {
-    connection.emit('user::disconnect', user);
-  });
+let roomList = new Vue({
+  el: '#roomList',
+  data: {
+    rooms: []
+  },
+  methods: {
+    leave: function(index) {
+      connection.emit('room::leave', {user: user, code: this.rooms[index].code});
+      this.rooms.splice(index, 1);
+    }
+  }
+});
 
-  connection.on('room::create', (room) => {
-    $roomList.append(`<li>${room.name}</li>`);
-  });
+let roomForm = new Vue({
+  el: '#roomForm',
+  data: {
+    name: null,
+    code: null,
+    visible: false
+  },
+  methods: {
+    create: function() {
+      connection.emit('room::create', {user: user, name: this.name});
+    },
+    join: function() {
+      connection.emit('room::join', {user: user, code: this.code});
+    }
+  }
+});
 
-  connection.on('room::join', (room) => {
-    joined(room);
-  });
+let connectForm = new Vue({
+  el: '#connectForm',
+  data: {
+    name: null,
+    visible: true
+  },
+  methods: {
+    connect: function() {
+      connection.emit('user::create', {name: this.name});
+    }
+  }
+});
 
-  connection.on('base::error', (message) => {
-    $actions.append(`<li class="error">${message}</li>`);
-  });
+connection.on('user::create', (id) => {
+  user = id;
+  connectForm.visible = false;
+  roomForm.visible = true;
+});
 
-  connection.on('room::leave', (message) => {
-    $actions.append(`<li class="error">${message}</li>`);
-  });
-}
+connection.on('room::join', (room) => {
+  roomList.rooms.push(room);
+});
 
-function connect(evt) {
-  evt.preventDefault();
-  let form = $(evt.target);
-  connection = io();
-  connection.emit('user::create', form.serializeObject());
-  socketSetup();
-  $connectForm.addClass('hide');
-  $newRoomForm.removeClass('hide');
-  $joinRoomForm.removeClass('hide');
-}
+connection.on('room::leave', (message) => {
+  actionList.actions.push(message);
+});
 
-function disconnect(evt) {
-  evt.preventDefault();
-  connection.close();
-  $connectForm.removeClass('hide');
-  $newRoomForm.addClass('hide');
-  $joinRoomForm.addClass('hide');
-  $activeGameForm.addClass('hide');
-  $title.text('Card Games');
-}
-
-function createNewRoom(evt) {
-  evt.preventDefault();
-  let params = $(evt.target).serializeObject();
-  params.user = user;
-  connection.emit('room::create', params);
-}
-
-function joinExistingRoom(evt) {
-  evt.preventDefault();
-  let params = $(evt.target).serializeObject();
-  params.user = user;
-  connection.emit('room::join', params);
-}
-
-function leaveRoom(evt) {
-  evt.preventDefault();
-  let params = { code: code, user: user };
-  connection.emit('room::leave', params);
-}
-
-// function handlePlayerInput(evt) {
-//   evt.preventDefault();
-//   console.log(evt.target.id);
-//   connection.emit('shuffle');
-// }
-
-function joined(room) {
-  $joinRoomForm.hide();
-  $newRoomForm.hide();
-  if (room.role === 'member') $('#player').removeClass('hide');
-  if (room.role === 'owner') $('#owner').removeClass('hide');
-  code = room.code;
-  $code.text(`(${room.code})`);
-  $title.html(`${room.name} `).append($code);
-}
-
-$connectForm.submit(connect);
-$disconnect.click(disconnect);
-$leave.click(leaveRoom);
-$newRoomForm.submit(createNewRoom);
-$joinRoomForm.submit(joinExistingRoom);
-// $activeGameForm.submit(handlePlayerInput);
+connection.on('base::error', (message) => {
+  actionList.actions.push(message);
+});

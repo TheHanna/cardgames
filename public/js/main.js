@@ -1,10 +1,11 @@
 let connection;
 let code;
+let user;
 const $connectForm = $('#connect');
-const $leave = $('#leave');
-const $disconnect = $('#disconnect');
-const $newGameForm = $('#new-game');
-const $joinGameForm = $('#join-game');
+const $leave = $('.leave');
+const $disconnect = $('.disconnect');
+const $newRoomForm = $('#new-room');
+const $joinRoomForm = $('#join-room');
 const $activeGameForm = $('#active-game');
 const $actions = $('#actions');
 const $roomList = $('#rooms');
@@ -12,30 +13,29 @@ const $title = $('h1');
 const $code = jQuery('<span/>', {id: 'game-code'});
 
 function socketSetup() {
-  connection.on('create', (room) => {
+  connection.on('user::create', (id) => {
+    console.log(id);
+    user = id;
+  });
+
+  connection.on('user::disconnect', () => {
+    connection.emit('user::disconnect', user);
+  });
+
+  connection.on('room::create', (room) => {
     $roomList.append(`<li>${room.name}</li>`);
   });
 
-  connection.on('join::player', (room) => {
+  connection.on('room::join', (room) => {
     joined(room);
-    $('#player').removeClass('hide');
   });
 
-  connection.on('join::owner', (room) => {
-    joined(room);
-    $('#owner').removeClass('hide');
-  });
-
-  connection.on('join::error', (message) => {
+  connection.on('base::error', (message) => {
     $actions.append(`<li class="error">${message}</li>`);
   });
 
-  connection.on('leave', (room) => {
-    $actions.append(`<li class="error">${room}</li>`);
-  });
-
-  connection.on('shuffled', (res) => {
-    $actions.append(`<li>${res}</li>`);
+  connection.on('room::leave', (message) => {
+    $actions.append(`<li class="error">${message}</li>`);
   });
 }
 
@@ -43,49 +43,54 @@ function connect(evt) {
   evt.preventDefault();
   let form = $(evt.target);
   connection = io();
-  connection.emit('init', form.serializeObject());
+  connection.emit('user::create', form.serializeObject());
   socketSetup();
   $connectForm.addClass('hide');
-  $newGameForm.removeClass('hide');
-  $joinGameForm.removeClass('hide');
+  $newRoomForm.removeClass('hide');
+  $joinRoomForm.removeClass('hide');
 }
 
 function disconnect(evt) {
   evt.preventDefault();
   connection.close();
   $connectForm.removeClass('hide');
-  $newGameForm.addClass('hide');
-  $joinGameForm.addClass('hide');
+  $newRoomForm.addClass('hide');
+  $joinRoomForm.addClass('hide');
   $activeGameForm.addClass('hide');
   $title.text('Card Games');
 }
 
-function createNewGame(evt) {
+function createNewRoom(evt) {
   evt.preventDefault();
-  let form = $(evt.target);
-  connection.emit('create', form.serializeObject());
+  let params = $(evt.target).serializeObject();
+  params.user = user;
+  connection.emit('room::create', params);
 }
 
-function joinExistingGame(evt) {
+function joinExistingRoom(evt) {
   evt.preventDefault();
-  let form = $(evt.target);
-  connection.emit('join', form.serializeObject());
+  let params = $(evt.target).serializeObject();
+  params.user = user;
+  connection.emit('room::join', params);
 }
 
 function leaveRoom(evt) {
   evt.preventDefault();
-  connection.emit('leave', code);
+  let params = { code: code, user: user };
+  connection.emit('room::leave', params);
 }
 
-function handlePlayerInput(evt) {
-  evt.preventDefault();
-  console.log(evt.target.id);
-  connection.emit('shuffle');
-}
+// function handlePlayerInput(evt) {
+//   evt.preventDefault();
+//   console.log(evt.target.id);
+//   connection.emit('shuffle');
+// }
 
 function joined(room) {
-  $joinGameForm.hide();
-  $newGameForm.hide();
+  $joinRoomForm.hide();
+  $newRoomForm.hide();
+  if (room.role === 'member') $('#player').removeClass('hide');
+  if (room.role === 'owner') $('#owner').removeClass('hide');
   code = room.code;
   $code.text(`(${room.code})`);
   $title.html(`${room.name} `).append($code);
@@ -94,6 +99,6 @@ function joined(room) {
 $connectForm.submit(connect);
 $disconnect.click(disconnect);
 $leave.click(leaveRoom);
-$newGameForm.submit(createNewGame);
-$joinGameForm.submit(joinExistingGame);
-$activeGameForm.submit(handlePlayerInput);
+$newRoomForm.submit(createNewRoom);
+$joinRoomForm.submit(joinExistingRoom);
+// $activeGameForm.submit(handlePlayerInput);

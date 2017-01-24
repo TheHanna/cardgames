@@ -5,40 +5,29 @@
     <title>Card Games</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="/socket.io/socket.io.js" charset="utf-8"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="js/helper.js" charset="utf-8"></script>
+    <script src="https://unpkg.com/vue@2.1.10/dist/vue.js" charset="utf-8"></script>
   </head>
   <body>
-    <h1>Card Games</h1>
-    <form id="connect" action="">
-      <h2>Who are you?</h2>
-      <input type="text" placeholder="User name" name="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
-      <button type="submit">Connect</button>
-    </form>
-    <form id="new-room" action="" class="hide">
-      <h2>New Room</h2>
-      <input type="text" placeholder="Room name" name="room" pattern="[a-zA-Z0-9 ]{3,20}" required>
-      <button type="submit">Start</button>
-    </form>
-    <form id="join-room" action="" class="hide">
-      <h2>Join Game</h2>
-      <input type="text" placeholder="Room code" name="code" pattern="[A-Z]{4}" required>
-      <button type="submit">Join</button>
-    </form>
-    <form id="active-game" action="">
-      <div id="owner" class="hide">
-        <button type="submit">Shuffle</button>
-        <button type="submit">Start</button>
-        <button class="leave">Leave</button>
-        <button class="disconnect">Disconnect</button>
-      </div>
-      <div id="player" class="hide">
-        <button class="leave">Leave</button>
-        <button class="disconnect">Disconnect</button>
-      </div>
-    </form>
-    <ul id="actions"></ul>
-    <ul id="rooms"></ul>
-  <script src="js/main.js" charset="utf-8"></script>
+    <div id="connectForm" v-if="visible">
+      <input type="text" placeholder="Username" v-model="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
+      <button type="button" v-on:click="connect">Connect</button>
+    </div>
+    <div id="roomForm" v-if="visible">
+      <input type="text" placeholder="Room name" v-model="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
+      <button type="button" v-on:click="create">Create</button>
+      <br>
+      <input type="text" placeholder="Room code" v-model="code" pattern="[A-Z]{4}">
+      <button type="button" v-on:click="join">Join</button>
+    </div>
+    <ul id="roomList">
+      <li v-for="(room, index) in rooms">
+        {{room.name}} ({{room.code}}), {{index}}
+        <button type="button" v-on:click="leave(index)">X</button>
+      </li>
+    </ul>
+    <ul id="actionList">
+      <li v-for="action in actions">{{action}}</li>
+    </ul>
+    <script src="js/main.js" charset="utf-8"></script>
   </body>
 </html>

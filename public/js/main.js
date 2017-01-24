@@ -1,3 +1,5 @@
+// TODO: Research VueJS components to modularize this code into multiple files
+
 let connection = io();
 let user;
 

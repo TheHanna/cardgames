@@ -2,7 +2,7 @@ const uuid = require('uuid/v4');
 class Room {
   constructor(user, params) {
     this.id = uuid();
-    this.name = params.room;
+    this.name = params.name;
     this.code = params.code;
     this.owner = user.id;
     this.members = {};

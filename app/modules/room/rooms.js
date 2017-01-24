@@ -33,50 +33,51 @@ class Rooms extends Base {
     return codes.indexOf(code) > -1;
   }
 
-  create(socket, params) {
-    debug(socket.name, 'is attempting to create a new room called', params.room);
+  create(user, params) {
+    debug(user.name, 'is attempting to create a new room called', params.room);
     params.code = this.generateRoomCode();
-    let room = new Room(socket, params);
+    let room = new Room(user, params);
     this._rooms[params.code] = room;
-    this.join(socket, room.code);
+    debug(user.name, 'has created the room', room.name);
+    this.join(user, room.code);
   }
 
-  join(socket, code) {
-    debug(socket.name, 'is attempting to join with code', code);
+  join(user, code) {
+    debug(user.name, 'is attempting to join with code', code);
     if (!this.exists(code)) {
       let message = 'Room does not exist.';
-      debug(socket.name, 'failed to join room with code', code + '.', message);
-      this.error(socket, message);
+      debug(user.name, 'failed to join room with code', code + '.', message);
+      this.error(user, message);
       return;
     }
     let room = this._rooms[code];
-    if (!socket.role) socket.role = 'player';
-    socket.join(code, () => {
-      room.occupants.push(socket.id);
-      socket.emit(`join::${socket.role}`, {
+    if (!user.role) user.role = 'player';
+    user.socket.join(code, () => {
+      room.members[user.id] = user;
+      user.rooms[room.id] = room;
+      user.socket.emit('room::join', {
+        role: room.getRole(user.id),
         name: room.name,
         code: room.code
       });
-      debug(socket.name, 'joined', room.name);
+      debug(user.name, 'joined', room.name, 'as', room.getRole(user.id));
     });
   }
 
-  leave(socket, code) {
-    debug(socket.name, 'is attempting to leave', code);
+  leave(user, code) {
+    debug(user.name, 'is attempting to leave', code);
     if (!this.exists(code)) {
       let message = 'Room does not exist.';
-      debug(socket.name, 'failed to leave room with code', code + '.', message);
-      this.error(socket, message);
+      debug(user.name, 'failed to leave room with code', code + '.', message);
+      this.error(user, message);
       return;
     }
     let room = this._rooms[code];
-    socket.leave(code, () => {
-      let i = room.occupants.indexOf(socket.id);
-      if (i > -1) {
-        room.occupants.splice(i, 1);
-        socket.emit('leave', `${socket.name} left room ${room.name}`);
-        debug(socket.name, 'left', room.name);
-      }
+    user.socket.leave(code, () => {
+      delete(room.members[user.id]);
+      delete(user.rooms[room.id]);
+      user.socket.emit('room::leave', `${user.name} left room ${room.name}`);
+      debug(user.name, 'left', room.name);
     });
   }
 

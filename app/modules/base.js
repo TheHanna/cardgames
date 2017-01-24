@@ -1,6 +1,7 @@
 class Base {
-  error(socket, message) {
-    socket.emit('join::error', message);
+  error(user, message) {
+    console.log(user);
+    user.socket.emit('base::error', message);
   }
 }
 

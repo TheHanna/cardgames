@@ -1,9 +1,10 @@
 const uuid = require('uuid/v4');
 class User {
-  constructor(socket) {
+  constructor(socket, params) {
     this.socket = socket;
     this.id = uuid();
-    this.name = socket.name;
+    this.name = params.name;
+    this.rooms = {};
   }
 }
 

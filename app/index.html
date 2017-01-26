@@ -8,26 +8,12 @@
     <script src="https://unpkg.com/vue@2.1.10/dist/vue.js" charset="utf-8"></script>
   </head>
   <body>
-    <div id="connectForm" v-if="visible">
-      <input type="text" placeholder="Username" v-model="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
-      <button type="button" v-on:click="connect">Connect</button>
-    </div>
-    <div id="roomForm" v-if="visible">
-      <input type="text" placeholder="Room name" v-model="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
-      <button type="button" v-on:click="create">Create</button>
-      <br>
-      <input type="text" placeholder="Room code" v-model="code" pattern="[A-Z]{4}">
-      <button type="button" v-on:click="join">Join</button>
-    </div>
-    <ul id="roomList">
-      <li v-for="(room, index) in rooms">
-        {{room.name}} ({{room.code}}), {{index}}
-        <button type="button" v-on:click="leave(index)">X</button>
-      </li>
-    </ul>
-    <ul id="actionList">
-      <li v-for="action in actions">{{action}}</li>
-    </ul>
-    <script src="js/main.js" charset="utf-8"></script>
+    <section id="app">
+      <connect-form ref="connectForm"></connect-form>
+      <room-form ref="roomForm"></room-form>
+      <room-list ref="rooms"></room-list>
+      <action-list ref="actions"></action-list>
+    </section>
+    <script src="js/app.js" charset="utf-8"></script>
   </body>
 </html>

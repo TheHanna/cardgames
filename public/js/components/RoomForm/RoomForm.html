@@ -1,0 +1,7 @@
+<div v-if="visible">
+  <input type="text" placeholder="Room name" v-model="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
+  <button type="button" v-on:click="create">Create</button>
+  <br>
+  <input type="text" placeholder="Room code" v-model="code" pattern="[A-Z]{4}">
+  <button type="button" v-on:click="join">Join</button>
+</div>

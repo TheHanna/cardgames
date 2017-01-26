@@ -1,2 +1,2 @@
-#!/bin/bash
-nodemon app/index.js
+# !/bin/bash
+nodemon app.index.js

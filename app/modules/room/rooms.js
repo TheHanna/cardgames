@@ -34,7 +34,7 @@ class Rooms extends Base {
   }
 
   create(user, params) {
-    debug(user.name, 'is attempting to create a new room called', params.room);
+    debug(user.name, 'is attempting to create a new room called', params.name);
     params.code = this.generateRoomCode();
     let room = new Room(user, params);
     this._rooms[params.code] = room;
@@ -76,7 +76,8 @@ class Rooms extends Base {
     user.socket.leave(code, () => {
       delete(room.members[user.id]);
       delete(user.rooms[room.id]);
-      user.socket.emit('room::leave', `${user.name} left room ${room.name}`);
+      user.socket.emit('room::leave', `You left room ${room.name}`);
+      user.socket.to(room.code).emit('room::leave', `${user.name} left room ${room.name}`);
       debug(user.name, 'left', room.name);
     });
   }

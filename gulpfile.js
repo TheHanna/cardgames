@@ -25,7 +25,15 @@ gulp.task('watch-js', ['compile-js'], (done) => {
 gulp.task('run', ['compile-js'], () => {
   sync.init({
     proxy: 'http://localhost:3000',
-    ws: true
+    port: 3001
   });
-  gulp.watch(['public/js/**/*.js', '!public/js/app.js'], ['watch-js']);
+  gulp.watch([
+    'public/**/*.js',
+    'public/**/*.css',
+    'public/**/*.html',
+    'public/**/*.vue',
+    '!public/js/app.js'
+    ],
+    ['watch-js']
+  );
 });

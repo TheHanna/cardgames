@@ -1,4 +1,7 @@
 <div v-if="visible">
-  <input type="text" placeholder="Username" v-model="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
-  <button type="button" v-on:click="connect">Connect</button>
+  <h1>Card Games</h1>
+  <form v-on:submit="connect" class="green">
+    <input type="text" placeholder="Username" v-model="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
+    <button type="submit">Connect</button>
+  </form>
 </div>

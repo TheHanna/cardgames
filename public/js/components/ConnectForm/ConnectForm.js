@@ -1,3 +1,5 @@
+const connection = require('../../socket.js');
+
 module.exports = {
   name: 'ConnectForm',
   data: function() {
@@ -6,12 +8,11 @@ module.exports = {
       visible: true
     };
   },
-  created: function() {
-    this.connection = this.$parent.connection;
-  },
   methods: {
-    connect: function() {
-      this.connection.emit('user::create', {name: this.name});
+    connect: function(evt) {
+      evt.preventDefault();
+      connection.emit('user::create', {name: this.name});
+      this.name = null;
     }
   }
 };

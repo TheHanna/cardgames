@@ -1,7 +1,14 @@
 <div v-if="visible">
-  <input type="text" placeholder="Room name" v-model="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
-  <button type="button" v-on:click="create">Create</button>
-  <br>
-  <input type="text" placeholder="Room code" v-model="code" pattern="[A-Z]{4}">
-  <button type="button" v-on:click="join">Join</button>
+  <form v-on:submit="create" class="green">
+    <h1>Create Room</h1>
+    <input type="text" placeholder="Room name" v-model="name" pattern="[a-zA-Z0-9 ]{3,20}" required>
+    <button type="submit">Create</button>
+  </form>
+  <form v-on:submit="join" class="green">
+    <h1>Join Room</h1>
+    <input type="text" placeholder="Room code" v-model="code" pattern="[A-Z]{4}">
+    <button type="submit">Join</button>
+  </form>
+  <room-list ref="rooms"></room-list>
+  <action-list ref="actions"></action-list>
 </div>

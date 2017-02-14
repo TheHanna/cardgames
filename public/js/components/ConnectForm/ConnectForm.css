@@ -1,0 +1,18 @@
+div {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+div > h1 {
+  margin: -1em auto 0 auto;
+}
+
+div > form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}

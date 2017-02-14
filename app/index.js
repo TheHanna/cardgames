@@ -39,6 +39,14 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     debug(socket.id, 'disconnected!');
   });
+  socket.on('room::message', (params) => {
+    Rooms.message(
+      Users.find(params.user),
+      params.code,
+      params.message,
+      io.sockets.in(params.code)
+    );
+  });
 });
 
 http.listen(3000, () => {

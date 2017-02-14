@@ -1,0 +1,20 @@
+div {
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: flex-start;
+  width: 25%;
+}
+
+div > form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1em;
+}
+
+div > form > h1 {
+  margin: 0 auto 0 auto;
+}

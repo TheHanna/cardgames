@@ -56,6 +56,7 @@ class Rooms extends Base {
       room.members[user.id] = user;
       user.rooms[room.id] = room;
       user.socket.emit('room::join', {
+        id: room.id,
         role: room.getRole(user.id),
         name: room.name,
         code: room.code
@@ -80,6 +81,16 @@ class Rooms extends Base {
       user.socket.to(room.code).emit('room::leave', `${user.name} left room ${room.name}`);
       debug(user.name, 'left', room.name);
     });
+  }
+
+  message(user, code, message, room) {
+    if (!this.exists(code)) {
+      let errorMessage = 'Room does not exist.';
+      debug(user.name, 'failed to send message to room with code', code + '.');
+      this.error(user, errorMessage);
+      return;
+    }
+    room.emit('room::message', `${user.name}: ${message}`);
   }
 
   find(code) {

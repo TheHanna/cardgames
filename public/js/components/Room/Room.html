@@ -1,0 +1,12 @@
+<div v-if="visible">
+  <ul>
+    <li v-for="m in messages">
+      <span>{{m}}</span>
+    </li>
+  </ul>
+  <form v-on:submit="chat">
+    <input type="text" v-model="message">
+    <button type="submit">Send</button>
+  </form>
+
+</div>

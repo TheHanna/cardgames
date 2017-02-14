@@ -1,5 +1,11 @@
+const connection = require('../../socket.js');
+
 module.exports = {
   name: 'RoomForm',
+  components: {
+    'room-list': require('../RoomList/RoomList.vue'),
+    'action-list': require('../ActionList/ActionList.vue')
+  },
   data: function() {
     return {
       name: null,
@@ -8,14 +14,28 @@ module.exports = {
     };
   },
   created: function() {
-    this.connection = this.$parent.connection;
+    connection.on('room::join', (room) => {
+      this.$refs.rooms.$emit('add', room);
+    });
+
+    connection.on('room::leave', (message) => {
+      this.$refs.actions.$emit('add', {message: message, type: 'normal'});
+    });
+
+    connection.on('base::error', (message) => {
+      this.$refs.actions.$emit('add', {message: message, type: 'error'});
+    });
   },
   methods: {
-    create: function() {
-      this.connection.emit('room::create', {user: this.$parent.user, name: this.name});
+    create: function(evt) {
+      evt.preventDefault();
+      connection.emit('room::create', {user: this.$parent.user, name: this.name});
+      this.name = null;
     },
-    join: function() {
-      this.connection.emit('room::join', {user: this.$parent.user, code: this.code});
+    join: function(evt) {
+      evt.preventDefault();
+      connection.emit('room::join', {user: this.$parent.user, code: this.code});
+      this.code = null;
     }
   }
 };

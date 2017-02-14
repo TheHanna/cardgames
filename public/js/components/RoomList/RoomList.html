@@ -1,6 +1,6 @@
 <ul>
   <li v-for="(room, index) in rooms">
-    {{room.name}} ({{room.code}}) {{index}}
+    {{room.name}} ({{room.code}})
     <button type="button" v-on:click="leave(index)">X</button>
   </li>
 </ul>

@@ -1,5 +1,5 @@
 class Deck {
-  constructor(game = 'war') {
+  constructor() {
     this.cards = [];
     const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
     const suits = ['hearts', 'diamonds', 'spades', 'clubs'];
@@ -7,7 +7,9 @@ class Deck {
       let cards = ranks.map((rank) => {
         return { rank: rank, suit: suit };
       });
-      this.cards.push.apply(this.cards, cards);
+      this.cards = [...cards];
+      console.log(this.cards);
+      // this.cards.push.apply(this.cards, cards);
     });
   }
 
@@ -26,4 +28,4 @@ class Deck {
 
 module.exports = {
   Deck: Deck
-}
+};

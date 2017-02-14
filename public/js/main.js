@@ -1,33 +1,34 @@
+const connection = require('./socket.js');
+
 let app = new Vue({ // eslint-disable-line
   el: '#app',
   components: {
-    'action-list': require('./components/ActionList/ActionList.vue'),
-    'room-list': require('./components/RoomList/RoomList.vue'),
     'connect-form': require('./components/ConnectForm/ConnectForm.vue'),
-    'room-form': require('./components/RoomForm/RoomForm.vue')
+    'room-form': require('./components/RoomForm/RoomForm.vue'),
+    'room': require('./components/Room/Room.vue')
   },
   created: function() {
-    this.connection.on('user::create', (id) => {
-      console.log(id);
+    connection.on('user::create', (id) => {
       this.user = id;
       this.$refs.connectForm.visible = false;
       this.$refs.roomForm.visible = true;
+      this.$refs.roomForm.user = id;
     });
-
-    this.connection.on('room::join', (room) => {
-      this.$refs.rooms.$emit('add', room);
+    connection.on('room::join', (room) => {
+      this.$refs.room.user = this.user;
+      this.$refs.room.room = room;
+      this.$refs.room.visible = true;
     });
-
-    this.connection.on('room::leave', (message) => {
-      this.$refs.actions.$emit('add', {message: message, type: 'normal'});
+    connection.on('room::leave', (room) => {
+      this.$refs.room.user = null;
+      this.$refs.room.room = null;
+      this.$refs.room.visible = false;
     });
-
-    this.connection.on('base::error', (message) => {
-      this.$refs.actions.$emit('add', {message: message, type: 'error'});
+    connection.on('room::message', (message) => {
+      console.log('main: ', message);
     });
   },
   data: {
-    connection: io(),
     user: null
   }
 });

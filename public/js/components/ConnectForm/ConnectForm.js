@@ -9,9 +9,9 @@ module.exports = {
     };
   },
   methods: {
-    connect: function(evt) {
+    setName: function(evt) {
       evt.preventDefault();
-      connection.emit('user::create', {name: this.name});
+      connection.emit('user::name', this.name);
       this.name = null;
     }
   }

@@ -1,7 +1,17 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto|Roboto+Slab');
 
+/* Colors
+dark-text:    #626155
+light-text:   #ECECE9
+background:   #7CA754
+input-bg:     rgba(255, 255, 255, 0.25)
+input-text:   #516D37
+placeholder:  rgba(81, 109, 55, 0.5)
+
+*/
+
 html, body {
-  color: #666;
+  color: #626155;
   font-family: 'Roboto', sans-serif;
   font-weight: 300;
   height: 100%;
@@ -11,7 +21,7 @@ html, body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: #fff;
+  color: #ECECE9;
   font-family: 'Roboto Slab', serif;
   font-weight: 300;
 }
@@ -31,26 +41,28 @@ h1 { font-size: 36pt; }
   color: red;
 }
 
-form.green input[type=text] {
-  background-color: rgba(255, 255, 255, 0.25);
-  border: 3px solid transparent;
-  color: #516D37;
-  font-size: 1.25em;
-  padding: 0.5em;
-  outline: none;
-}
-
 ::-webkit-input-placeholder {
   color: #516D37;
   opacity: 0.5;
+}
+
+form.green input[type=text] {
+  background-color: rgba(255, 255, 255, 0.25);
+  border: none;
+  color: #516D37;
+  font-size: 1.25em;
+  outline: none;
+  padding: 0.5em;
 }
 
 form.green button {
   background-color: #516D37;
   border-color: transparent;
   border-radius: 0 0 12px 12px;
-  color: #CBDDBB;
+  color: #ECECE9;
   cursor: pointer;
   font-weight: 600;
+  outline: none;
   padding: 0.5em;
+  transition: background-color 0.5s, color 0.5s;
 }

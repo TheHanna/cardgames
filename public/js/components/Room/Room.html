@@ -1,12 +1,29 @@
-<div v-if="visible">
-  <ul>
-    <li v-for="m in messages">
-      <span>{{m}}</span>
-    </li>
-  </ul>
+<section v-if="visible">
+  <header>
+    <form v-on:submit="start">
+      <select v-model="game" required>
+        <option value="war">War</option>
+      </select>
+      <button type="submit">Start</button>
+    </form>
+    <h1>{{room.name}}</h1>
+  </header>
+  <main>
+    <ul class="chat">
+      <li v-for="message in messages">
+        <span class="user">{{message.user | firstLetter}}</span>
+        <span class="message">{{message.message}}</span>
+      </li>
+    </ul>
+    <ul class="members" v-if="members">
+      <li v-for="member in members">
+        {{member.name}}
+      </li>
+    </ul>
+  </main>
   <form v-on:submit="chat">
     <input type="text" v-model="message">
     <button type="submit">Send</button>
   </form>
 
-</div>
+</section>

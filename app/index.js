@@ -2,9 +2,8 @@ const debug = require('debug')('cardgames:socket');
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
-const io = require('socket.io')(http);
-const Rooms = new (require('./modules/room/rooms.js'));
-const Users = new (require('./modules/user/users.js'));
+global.io = require('socket.io')(http);
+global.Rooms = new (require('./modules/room/rooms.js'));
 
 app.use(express.static(`${__dirname}/../public`));
 
@@ -16,36 +15,17 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   debug(socket.id, 'connected');
   // TODO: Figure out reconnection
-  socket.on('user::create', (params) => {
-    Users.create(socket, params);
-  });
-  socket.on('room::create', (params) => {
-    Rooms.create(Users.find(params.user), params);
-  });
-  socket.on('room::join', (params) => {
-    Rooms.join(Users.find(params.user), params.code);
-  });
-  socket.on('room::leave', (params) => {
-    debug('room::leave triggered with params:', params);
-    Rooms.leave(Users.find(params.user), params.code);
+  socket.on('user::name', (name) => {
+    socket.name = name;
+    debug('Socket', socket.id, 'has name', socket.name);
+    socket.emit('user::named');
   });
   socket.on('disconnecting', () => {
+    debug(socket.name, 'is about to disconnect');
     socket.emit('user::disconnect');
-    // Users.destroy(Users.find(user));
-  });
-  socket.on('user::disconnect', (user) => {
-    Users.destroy(Users.find(user));
   });
   socket.on('disconnect', () => {
-    debug(socket.id, 'disconnected!');
-  });
-  socket.on('room::message', (params) => {
-    Rooms.message(
-      Users.find(params.user),
-      params.code,
-      params.message,
-      io.sockets.in(params.code)
-    );
+    debug(socket.name, 'disconnected');
   });
 });
 

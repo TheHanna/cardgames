@@ -8,24 +8,25 @@ let app = new Vue({ // eslint-disable-line
     'room': require('./components/Room/Room.vue')
   },
   created: function() {
-    connection.on('user::create', (id) => {
-      this.user = id;
+    connection.on('disconnect', () => {
+      this.$refs.roomForm.visible = false;
+      this.$refs.room.visible = false;
+      this.$refs.connectForm.visible = true;
+    });
+    connection.on('user::named', (id) => {
       this.$refs.connectForm.visible = false;
       this.$refs.roomForm.visible = true;
       this.$refs.roomForm.user = id;
     });
-    connection.on('room::join', (room) => {
+    connection.on('room::joined', (room) => {
       this.$refs.room.user = this.user;
       this.$refs.room.room = room;
       this.$refs.room.visible = true;
     });
-    connection.on('room::leave', (room) => {
+    connection.on('room::left', (room) => {
       this.$refs.room.user = null;
       this.$refs.room.room = null;
       this.$refs.room.visible = false;
-    });
-    connection.on('room::message', (message) => {
-      console.log('main: ', message);
     });
   },
   data: {

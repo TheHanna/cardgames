@@ -14,11 +14,11 @@ module.exports = {
     };
   },
   created: function() {
-    connection.on('room::join', (room) => {
+    connection.on('room::joined', (room) => {
       this.$refs.rooms.$emit('add', room);
     });
 
-    connection.on('room::leave', (message) => {
+    connection.on('room::left', (message) => {
       this.$refs.actions.$emit('add', {message: message, type: 'normal'});
     });
 
@@ -29,7 +29,7 @@ module.exports = {
   methods: {
     create: function(evt) {
       evt.preventDefault();
-      connection.emit('room::create', {user: this.$parent.user, name: this.name});
+      connection.emit('room::create', this.name);
       this.name = null;
     },
     join: function(evt) {

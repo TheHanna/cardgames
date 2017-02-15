@@ -1,16 +1,15 @@
 class Deck {
   constructor() {
     this.cards = [];
-    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
     const suits = ['hearts', 'diamonds', 'spades', 'clubs'];
     suits.forEach((suit) => {
-      let cards = ranks.map((rank) => {
-        return { rank: rank, suit: suit };
+      let cards = ranks.map((rank, index) => {
+        return { rank: rank, suit: suit, value: index };
       });
-      this.cards = [...cards];
-      console.log(this.cards);
-      // this.cards.push.apply(this.cards, cards);
+      this.cards = [...this.cards, ...cards];
     });
+    this.shuffle();
   }
 
   shuffle() {
@@ -26,6 +25,4 @@ class Deck {
   }
 }
 
-module.exports = {
-  Deck: Deck
-};
+module.exports = Deck;

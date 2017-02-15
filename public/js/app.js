@@ -6599,9 +6599,9 @@ module.exports = {
     };
   },
   methods: {
-    connect: function(evt) {
+    setName: function(evt) {
       evt.preventDefault();
-      connection.emit('user::create', {name: this.name});
+      connection.emit('user::name', this.name);
       this.name = null;
     }
   }
@@ -6611,7 +6611,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('div',[_c('h1',[_vm._v("Card Games")]),_vm._v(" "),_c('form',{staticClass:"green",on:{"submit":_vm.connect}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.name),expression:"name"}],attrs:{"type":"text","placeholder":"Username","pattern":"[a-zA-Z0-9 ]{3,20}","required":""},domProps:{"value":_vm._s(_vm.name)},on:{"input":function($event){if($event.target.composing){ return; }_vm.name=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Connect")])])]):_vm._e()}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('div',[_c('h1',[_vm._v("Card Games")]),_vm._v(" "),_c('form',{staticClass:"green",on:{"submit":_vm.setName}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.name),expression:"name"}],attrs:{"type":"text","placeholder":"Username","pattern":"[a-zA-Z0-9 ]{3,20}","required":""},domProps:{"value":_vm._s(_vm.name)},on:{"input":function($event){if($event.target.composing){ return; }_vm.name=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Connect")])])]):_vm._e()}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-b81d9048"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -6644,11 +6644,11 @@ module.exports = {
     };
   },
   created: function() {
-    connection.on('room::join', (room) => {
+    connection.on('room::joined', (room) => {
       this.$refs.rooms.$emit('add', room);
     });
 
-    connection.on('room::leave', (message) => {
+    connection.on('room::left', (message) => {
       this.$refs.actions.$emit('add', {message: message, type: 'normal'});
     });
 
@@ -6659,7 +6659,7 @@ module.exports = {
   methods: {
     create: function(evt) {
       evt.preventDefault();
-      connection.emit('room::create', {user: this.$parent.user, name: this.name});
+      connection.emit('room::create', this.name);
       this.name = null;
     },
     join: function(evt) {
@@ -6708,10 +6708,7 @@ module.exports = {
   },
   methods: {
     leave: function(index) {
-      connection.emit('room::leave', {
-        user: this.$parent.user,
-        code: this.rooms[index].code
-      });
+      connection.emit('room::leave', this.rooms[index].code);
       this.rooms.splice(index, 1);
     }
   }
@@ -6736,7 +6733,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   }
 })()}
 },{"../../socket.js":11,"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],9:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("div[data-v-1dde2598] {\n  background: transparent;\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 75%;\n}\n\ndiv > ul[data-v-1dde2598] {\n  box-sizing: border-box;\n  list-style-type: none;\n  font-size: 1.25em;\n  margin: 0;\n  padding: 1em;\n  width: 100%;\n  height: calc(100vh - 50px);\n  background-color: transparent;\n}\n\ndiv > ul > li[data-v-1dde2598] {\n  color: #1E2915;\n}\n\n\ndiv > form[data-v-1dde2598] {\n  display: flex;\n  flex-direction: row;\n  margin: 0;\n  padding: 0;\n  height: 50px;\n}\n\ndiv > form > input[type=text][data-v-1dde2598] {\n  border: none;\n  display: inline;\n  height: 100%;\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0 0 1em;\n}\n\ndiv > form > input[type=text][data-v-1dde2598]:focus {\n  border: none;\n  outline: none;\n}\n\ndiv > form > button[type=submit][data-v-1dde2598] {\n  border: none;\n  display: inline;\n  height: 100%;\n  margin: 0;\n  padding: 0;\n  width: 9%;\n}")
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("header[data-v-1dde2598] {\n  display: flex;\n  flex-direction: row;\n  background-color: #516D37;\n}\n\nheader h1[data-v-1dde2598] {\n  margin: 0;\n  padding: 0.25em 0.25em;\n  text-align: right;\n}\n\nheader form[data-v-1dde2598] {\n  flex-grow: 1;\n}\n\nsection[data-v-1dde2598], main[data-v-1dde2598] {\n  background: transparent;\n  display: flex;\n  height: 100%;\n}\n\nsection[data-v-1dde2598] {\n  flex-direction: column;\n  width: 75%;\n}\n\nmain[data-v-1dde2598] {\n  flex-direction: row;\n  width: 100%;\n}\n\nul[data-v-1dde2598] {\n  box-sizing: border-box;\n  list-style-type: none;\n  margin: 0;\n  padding: 0;\n}\n\nul li[data-v-1dde2598] {\n  box-sizing: border-box;\n}\n\nul.chat[data-v-1dde2598] {\n  background-color: transparent;\n  flex-grow: 1;\n  font-size: 1.25em;\n  /*width: 100%;*/\n}\n\nul.chat li[data-v-1dde2598] {\n  display: block;\n  margin: 0;\n  padding: 0.5em;\n  width: 100%;\n}\n\nul.chat li[data-v-1dde2598]:nth-child(even) {\n  color: #626155;\n  background-color: rgba(255, 255, 255, 0.25);\n}\n\nul.chat li[data-v-1dde2598]:nth-child(odd) {\n  color: #ECECE9;\n  background-color: rgba(0, 0, 0, 0.25);\n}\n\nul.chat li .user[data-v-1dde2598] {\n  background-color: #7CA754;\n  border-radius: 50%;\n  color: #516D37;\n  display: inline-block;\n  font-family: 'Roboto Slab', serif;\n  min-width: 1.25em;\n  text-align: center;\n}\n\nform[data-v-1dde2598] {\n  display: flex;\n  flex-direction: row;\n  margin: 0;\n  padding: 0;\n  height: 50px;\n}\n\nform input[type=text][data-v-1dde2598] {\n  border: none;\n  display: inline;\n  height: 100%;\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0 0 1em;\n}\n\nform input[type=text][data-v-1dde2598]:focus {\n  border: none;\n  outline: none;\n}\n\nform button[type=submit][data-v-1dde2598] {\n  border: none;\n  display: inline;\n  height: 100%;\n  margin: 0;\n  padding: 0;\n  width: 9%;\n}")
 ;(function(){
 const connection = require('../../socket.js');
 
@@ -6745,26 +6742,41 @@ module.exports = {
   data: function() {
     return {
       visible: false,
-      user: null,
       room: null,
+      game: null,
       message: null,
       messages: []
     };
   },
   created: function() {
+    connection.on('room::messages', (msgs) => {
+      console.log(msgs);
+      this.messages = msgs;
+    });
+
     connection.on('room::message', (message) => {
       this.messages.push(message);
     });
   },
+  filters: {
+    firstLetter: function(value) {
+      if (!value) return '';
+      value = value.toString();
+      return value[0].toUpperCase();
+    }
+  },
   methods: {
     chat: function(evt) {
       evt.preventDefault();
-      connection.emit('room::message', {
-        user: this.user,
-        code: this.room.code,
-        message: this.message
-      });
+      connection.emit('room::message', this.room.code, this.message);
       this.message = null;
+    },
+    start: function(evt) {
+      evt.preventDefault();
+      connection.emit('room::start', {
+        code: this.room.code,
+        game: this.game
+      });
     }
   }
 };
@@ -6773,7 +6785,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('div',[_c('ul',_vm._l((_vm.messages),function(m){return _c('li',[_c('span',[_vm._v(_vm._s(m))])])})),_vm._v(" "),_c('form',{on:{"submit":_vm.chat}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.message),expression:"message"}],attrs:{"type":"text"},domProps:{"value":_vm._s(_vm.message)},on:{"input":function($event){if($event.target.composing){ return; }_vm.message=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Send")])])]):_vm._e()}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('section',[_c('header',[_c('form',{on:{"submit":_vm.start}},[_c('select',{directives:[{name:"model",rawName:"v-model",value:(_vm.game),expression:"game"}],attrs:{"required":""},on:{"change":function($event){_vm.game=Array.prototype.filter.call($event.target.options,function(o){return o.selected}).map(function(o){var val = "_value" in o ? o._value : o.value;return val})[0]}}},[_c('option',{attrs:{"value":"war"}},[_vm._v("War")])]),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Start")])]),_vm._v(" "),_c('h1',[_vm._v(_vm._s(_vm.room.name))])]),_vm._v(" "),_c('main',[_c('ul',{staticClass:"chat"},_vm._l((_vm.messages),function(message){return _c('li',[_c('span',{staticClass:"user"},[_vm._v(_vm._s(_vm._f("firstLetter")(message.user)))]),_vm._v(" "),_c('span',{staticClass:"message"},[_vm._v(_vm._s(message.message))])])})),_vm._v(" "),(_vm.members)?_c('ul',{staticClass:"members"},_vm._l((_vm.members),function(member){return _c('li',[_vm._v("\n        "+_vm._s(member.name)+"\n      ")])})):_vm._e()]),_vm._v(" "),_c('form',{on:{"submit":_vm.chat}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.message),expression:"message"}],attrs:{"type":"text"},domProps:{"value":_vm._s(_vm.message)},on:{"input":function($event){if($event.target.composing){ return; }_vm.message=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Send")])])]):_vm._e()}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-1dde2598"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -6784,7 +6796,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-1dde2598", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-1dde2598", __vue__options__)
+    hotAPI.reload("data-v-1dde2598", __vue__options__)
   }
 })()}
 },{"../../socket.js":11,"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],10:[function(require,module,exports){
@@ -6798,24 +6810,25 @@ let app = new Vue({ // eslint-disable-line
     'room': require('./components/Room/Room.vue')
   },
   created: function() {
-    connection.on('user::create', (id) => {
-      this.user = id;
+    connection.on('disconnect', () => {
+      this.$refs.roomForm.visible = false;
+      this.$refs.room.visible = false;
+      this.$refs.connectForm.visible = true;
+    });
+    connection.on('user::named', (id) => {
       this.$refs.connectForm.visible = false;
       this.$refs.roomForm.visible = true;
       this.$refs.roomForm.user = id;
     });
-    connection.on('room::join', (room) => {
+    connection.on('room::joined', (room) => {
       this.$refs.room.user = this.user;
       this.$refs.room.room = room;
       this.$refs.room.visible = true;
     });
-    connection.on('room::leave', (room) => {
+    connection.on('room::left', (room) => {
       this.$refs.room.user = null;
       this.$refs.room.room = null;
       this.$refs.room.visible = false;
-    });
-    connection.on('room::message', (message) => {
-      console.log('main: ', message);
     });
   },
   data: {

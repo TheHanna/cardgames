@@ -15,10 +15,7 @@ module.exports = {
   },
   methods: {
     leave: function(index) {
-      connection.emit('room::leave', {
-        user: this.$parent.user,
-        code: this.rooms[index].code
-      });
+      connection.emit('room::leave', this.rooms[index].code);
       this.rooms.splice(index, 1);
     }
   }

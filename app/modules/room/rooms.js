@@ -3,11 +3,64 @@ const Base = require('../base.js');
 const Room = require('./room.js');
 const ROOM_CODE_STRING = require('../../config/app.constants.js').ROOM_CODE_STRING;
 const ROOM_CODE_LENGTH = require('../../config/app.constants.js').ROOM_CODE_LENGTH;
+const VALID_GAMES = require('../../config/app.constants.js').VALID_GAMES;
 
 class Rooms extends Base {
   constructor() {
     super();
     this._rooms = {};
+    io.on('connection', (socket) => {
+      socket.on('room::create', (name) => {
+        debug(socket.name, 'wants to create a room called', name);
+        this.create(socket, name);
+      });
+      socket.on('room::join', (params) => {
+        let room = this.find(params.code);
+        debug(socket.name, 'wants to join a room with the code', params.code);
+        if (room) {
+          room.join(socket);
+        } else {
+          this.error(socket, 'No such room');
+        }
+      });
+      socket.on('room::leave', (code) => {
+        let room = this.find(code);
+        debug(socket.name, 'wants to leave room', room.name);
+        if (room) {
+          room.leave(socket, () => {
+            if (room.isEmpty) {
+              debug(room.name, 'is empty, destroying');
+              delete this._rooms[code];
+            }
+          });
+        } else {
+          this.error(socket, 'No such room');
+        }
+      });
+      socket.on('room::message', (code, message) => {
+        let room = this.find(code);
+        debug(socket.name, 'sent the message:', message);
+        if (room) {
+          room.message(socket, message);
+        } else {
+          this.error(socket, 'No such room');
+        }
+        // debug(params.user, 'wants to send a message');
+        // this.message(
+        //   socket,
+        //   params.code,
+        //   params.message
+        // );
+      });
+      socket.on('room::start', (params) => {
+        debug(params.user, 'wants to start a game in a room');
+        this.start(
+          socket,
+          params.code,
+          params.game
+        );
+      });
+    });
   }
 
   generateRoomCode() {
@@ -33,68 +86,62 @@ class Rooms extends Base {
     return codes.indexOf(code) > -1;
   }
 
-  create(user, params) {
-    debug(user.name, 'is attempting to create a new room called', params.name);
-    params.code = this.generateRoomCode();
-    let room = new Room(user, params);
-    this._rooms[params.code] = room;
-    debug(user.name, 'has created the room', room.name);
-    this.join(user, room.code);
+  create(socket, name) {
+    debug(socket.name, 'is attempting to create a new room called', name);
+    let code = this.generateRoomCode();
+    this._rooms[code] = new Room(socket, name, code);
+    debug(socket.name, 'has created the room', name);
   }
 
-  join(user, code) {
-    debug(user.name, 'is attempting to join with code', code);
-    if (!this.exists(code)) {
-      let message = 'Room does not exist.';
-      debug(user.name, 'failed to join room with code', code + '.', message);
-      this.error(user, message);
-      return;
-    }
-    let room = this._rooms[code];
-    if (!user.role) user.role = 'player';
-    user.socket.join(code, () => {
-      room.members[user.id] = user;
-      user.rooms[room.id] = room;
-      user.socket.emit('room::join', {
-        id: room.id,
-        role: room.getRole(user.id),
-        name: room.name,
-        code: room.code
-      });
-      debug(user.name, 'joined', room.name, 'as', room.getRole(user.id));
-    });
-  }
+  // leave(user, code) {
+  //   debug(user.name, 'is attempting to leave', code);
+  //   if (!this.exists(code)) {
+  //     let message = 'Room does not exist.';
+  //     debug(user.name, 'failed to leave room with code', code + '.', message);
+  //     this.error(user, message);
+  //     return;
+  //   }
+  //   let room = this._rooms[code];
+  //   user.socket.leave(code, () => {
+  //     delete(room.members[user.id]);
+  //     delete(user.rooms[room.id]);
+  //     user.socket.emit('room::leave', `You left room ${room.name}`);
+  //     user.socket.to(room.code).emit('room::leave', `${user.name} left room ${room.name}`);
+  //     debug(user.name, 'left', room.name);
+  //     if (!room.hasMembers) {
+  //       debug(room.name, 'is empty');
+  //       delete this._rooms[code];
+  //       debug(room.name, 'destroyed');
+  //     }
+  //   });
+  // }
 
-  leave(user, code) {
-    debug(user.name, 'is attempting to leave', code);
-    if (!this.exists(code)) {
-      let message = 'Room does not exist.';
-      debug(user.name, 'failed to leave room with code', code + '.', message);
-      this.error(user, message);
-      return;
-    }
-    let room = this._rooms[code];
-    user.socket.leave(code, () => {
-      delete(room.members[user.id]);
-      delete(user.rooms[room.id]);
-      user.socket.emit('room::leave', `You left room ${room.name}`);
-      user.socket.to(room.code).emit('room::leave', `${user.name} left room ${room.name}`);
-      debug(user.name, 'left', room.name);
-    });
-  }
+  // message(user, code, message) {
+  //   if (!this.exists(code)) {
+  //     let errorMessage = 'Room does not exist.';
+  //     debug(user.name, 'failed to send message to room with code', code + '.');
+  //     this.error(user, errorMessage);
+  //     return;
+  //   }
+  //   let room = io.sockets.in(code);
+  //   room.emit('room::message', {user: user.name, message: message});
+  // }
 
-  message(user, code, message, room) {
+  start(user, code, game) {
     if (!this.exists(code)) {
       let errorMessage = 'Room does not exist.';
-      debug(user.name, 'failed to send message to room with code', code + '.');
+      debug(user.name, 'failed to start game in room with code', code + '.');
       this.error(user, errorMessage);
       return;
     }
-    room.emit('room::message', `${user.name}: ${message}`);
+    if (VALID_GAMES.indexOf(game) > -1) {
+      let room = this._rooms[code];
+      room.startGame(game);
+    }
   }
 
   find(code) {
-    return (exists) ? this._rooms[code] : 'Room does not exist';
+    return (this.exists(code)) ? this._rooms[code] : null;
   }
 
   list() {

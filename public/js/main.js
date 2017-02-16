@@ -19,7 +19,7 @@ let app = new Vue({ // eslint-disable-line
       this.$refs.roomForm.user = id;
     });
     connection.on('room::joined', (room) => {
-      this.$refs.room.user = this.user;
+      this.$refs.room.owner = connection.id === room.owner;
       this.$refs.room.room = room;
       this.$refs.room.visible = true;
     });

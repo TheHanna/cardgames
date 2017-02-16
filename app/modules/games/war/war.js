@@ -1,4 +1,4 @@
-// const debug = require('debug')('cardgames:game:war');
+const debug = require('debug')('cardgames:game:war');
 const Deck = require('../../deck/deck.js');
 
 class War {
@@ -10,8 +10,9 @@ class War {
 
   gameLoop() {
     setInterval(() => {
-      console.log('checking game state');
-      console.log('all played: ', this.allPlayed);
+      debug('checking game state');
+      debug('all played: ', this.allPlayed);
+      debug(this.inPlay);
       if (this.allPlayed) this.compare();
     }, 1000);
   }
@@ -20,6 +21,7 @@ class War {
     this.players[id] = {
       hand: []
     };
+    debug(this.playerCount);
     if (this.playerCount === 2) this.gameLoop();
   }
 
@@ -45,7 +47,6 @@ class War {
   }
 
   compare() {
-    console.log(this.inPlay);
     let keys = Object.keys(this.inPlay);
     let max = keys.reduce((acc, cv, ci, arr) => {
       let curr = this.inPlay[cv].value;
@@ -53,7 +54,7 @@ class War {
       if (curr > prev) acc = cv;
       return acc;
     });
-    console.log(max, this.inPlay[max]);
+    debug(max, this.inPlay[max]);
   }
 
   get playerCount() {

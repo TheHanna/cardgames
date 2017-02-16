@@ -6,6 +6,7 @@ module.exports = {
     return {
       visible: false,
       room: null,
+      owner: false,
       game: null,
       message: null,
       messages: []
@@ -36,10 +37,10 @@ module.exports = {
     },
     start: function(evt) {
       evt.preventDefault();
-      connection.emit('room::start', {
-        code: this.room.code,
-        game: this.game
-      });
+      connection.emit('room::start', this.room.code, this.game);
+    },
+    play: function() {
+      connection.emit('game::play', this.room.code);
     }
   }
 };

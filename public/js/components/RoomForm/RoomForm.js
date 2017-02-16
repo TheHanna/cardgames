@@ -29,12 +29,12 @@ module.exports = {
   methods: {
     create: function(evt) {
       evt.preventDefault();
-      connection.emit('room::create', this.name);
+      connection.emit('rooms::create', this.name);
       this.name = null;
     },
     join: function(evt) {
       evt.preventDefault();
-      connection.emit('room::join', {user: this.$parent.user, code: this.code});
+      connection.emit('room::join', this.code);
       this.code = null;
     }
   }

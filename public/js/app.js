@@ -181,138 +181,6 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],2:[function(require,module,exports){
-var Vue // late bind
-var map = window.__VUE_HOT_MAP__ = Object.create(null)
-var installed = false
-var isBrowserify = false
-var initHookName = 'beforeCreate'
-
-exports.install = function (vue, browserify) {
-  if (installed) return
-  installed = true
-
-  Vue = vue
-  isBrowserify = browserify
-
-  // compat with < 2.0.0-alpha.7
-  if (Vue.config._lifecycleHooks.indexOf('init') > -1) {
-    initHookName = 'init'
-  }
-
-  exports.compatible = Number(Vue.version.split('.')[0]) >= 2
-  if (!exports.compatible) {
-    console.warn(
-      '[HMR] You are using a version of vue-hot-reload-api that is ' +
-      'only compatible with Vue.js core ^2.0.0.'
-    )
-    return
-  }
-}
-
-/**
- * Create a record for a hot module, which keeps track of its constructor
- * and instances
- *
- * @param {String} id
- * @param {Object} options
- */
-
-exports.createRecord = function (id, options) {
-  var Ctor = null
-  if (typeof options === 'function') {
-    Ctor = options
-    options = Ctor.options
-  }
-  makeOptionsHot(id, options)
-  map[id] = {
-    Ctor: Vue.extend(options),
-    instances: []
-  }
-}
-
-/**
- * Make a Component options object hot.
- *
- * @param {String} id
- * @param {Object} options
- */
-
-function makeOptionsHot (id, options) {
-  injectHook(options, initHookName, function () {
-    map[id].instances.push(this)
-  })
-  injectHook(options, 'beforeDestroy', function () {
-    var instances = map[id].instances
-    instances.splice(instances.indexOf(this), 1)
-  })
-}
-
-/**
- * Inject a hook to a hot reloadable component so that
- * we can keep track of it.
- *
- * @param {Object} options
- * @param {String} name
- * @param {Function} hook
- */
-
-function injectHook (options, name, hook) {
-  var existing = options[name]
-  options[name] = existing
-    ? Array.isArray(existing)
-      ? existing.concat(hook)
-      : [existing, hook]
-    : [hook]
-}
-
-function tryWrap (fn) {
-  return function (id, arg) {
-    try { fn(id, arg) } catch (e) {
-      console.error(e)
-      console.warn('Something went wrong during Vue component hot-reload. Full reload required.')
-    }
-  }
-}
-
-exports.rerender = tryWrap(function (id, options) {
-  var record = map[id]
-  if (typeof options === 'function') {
-    options = options.options
-  }
-  record.Ctor.options.render = options.render
-  record.Ctor.options.staticRenderFns = options.staticRenderFns
-  record.instances.slice().forEach(function (instance) {
-    instance.$options.render = options.render
-    instance.$options.staticRenderFns = options.staticRenderFns
-    instance._staticTrees = [] // reset static trees
-    instance.$forceUpdate()
-  })
-})
-
-exports.reload = tryWrap(function (id, options) {
-  if (typeof options === 'function') {
-    options = options.options
-  }
-  makeOptionsHot(id, options)
-  var record = map[id]
-  record.Ctor.extendOptions = options
-  var newCtor = Vue.extend(options)
-  record.Ctor.options = newCtor.options
-  record.Ctor.cid = newCtor.cid
-  if (newCtor.release) {
-    // temporary global mixin strategy used in < 2.0.0-alpha.6
-    newCtor.release()
-  }
-  record.instances.slice().forEach(function (instance) {
-    if (instance.$vnode && instance.$vnode.context) {
-      instance.$vnode.context.$forceUpdate()
-    } else {
-      console.warn('Root or manually mounted instance modified. Full reload required.')
-    }
-  })
-})
-
-},{}],3:[function(require,module,exports){
 (function (process,global){
 /*!
  * Vue.js v2.1.10
@@ -6524,7 +6392,7 @@ setTimeout(function () {
 module.exports = Vue$2;
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":1}],4:[function(require,module,exports){
+},{"_process":1}],3:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 function noop () {}
@@ -6549,8 +6417,140 @@ exports.insert = function (css) {
   }
 }
 
+},{}],4:[function(require,module,exports){
+var Vue // late bind
+var map = window.__VUE_HOT_MAP__ = Object.create(null)
+var installed = false
+var isBrowserify = false
+var initHookName = 'beforeCreate'
+
+exports.install = function (vue, browserify) {
+  if (installed) return
+  installed = true
+
+  Vue = vue
+  isBrowserify = browserify
+
+  // compat with < 2.0.0-alpha.7
+  if (Vue.config._lifecycleHooks.indexOf('init') > -1) {
+    initHookName = 'init'
+  }
+
+  exports.compatible = Number(Vue.version.split('.')[0]) >= 2
+  if (!exports.compatible) {
+    console.warn(
+      '[HMR] You are using a version of vue-hot-reload-api that is ' +
+      'only compatible with Vue.js core ^2.0.0.'
+    )
+    return
+  }
+}
+
+/**
+ * Create a record for a hot module, which keeps track of its constructor
+ * and instances
+ *
+ * @param {String} id
+ * @param {Object} options
+ */
+
+exports.createRecord = function (id, options) {
+  var Ctor = null
+  if (typeof options === 'function') {
+    Ctor = options
+    options = Ctor.options
+  }
+  makeOptionsHot(id, options)
+  map[id] = {
+    Ctor: Vue.extend(options),
+    instances: []
+  }
+}
+
+/**
+ * Make a Component options object hot.
+ *
+ * @param {String} id
+ * @param {Object} options
+ */
+
+function makeOptionsHot (id, options) {
+  injectHook(options, initHookName, function () {
+    map[id].instances.push(this)
+  })
+  injectHook(options, 'beforeDestroy', function () {
+    var instances = map[id].instances
+    instances.splice(instances.indexOf(this), 1)
+  })
+}
+
+/**
+ * Inject a hook to a hot reloadable component so that
+ * we can keep track of it.
+ *
+ * @param {Object} options
+ * @param {String} name
+ * @param {Function} hook
+ */
+
+function injectHook (options, name, hook) {
+  var existing = options[name]
+  options[name] = existing
+    ? Array.isArray(existing)
+      ? existing.concat(hook)
+      : [existing, hook]
+    : [hook]
+}
+
+function tryWrap (fn) {
+  return function (id, arg) {
+    try { fn(id, arg) } catch (e) {
+      console.error(e)
+      console.warn('Something went wrong during Vue component hot-reload. Full reload required.')
+    }
+  }
+}
+
+exports.rerender = tryWrap(function (id, options) {
+  var record = map[id]
+  if (typeof options === 'function') {
+    options = options.options
+  }
+  record.Ctor.options.render = options.render
+  record.Ctor.options.staticRenderFns = options.staticRenderFns
+  record.instances.slice().forEach(function (instance) {
+    instance.$options.render = options.render
+    instance.$options.staticRenderFns = options.staticRenderFns
+    instance._staticTrees = [] // reset static trees
+    instance.$forceUpdate()
+  })
+})
+
+exports.reload = tryWrap(function (id, options) {
+  if (typeof options === 'function') {
+    options = options.options
+  }
+  makeOptionsHot(id, options)
+  var record = map[id]
+  record.Ctor.extendOptions = options
+  var newCtor = Vue.extend(options)
+  record.Ctor.options = newCtor.options
+  record.Ctor.cid = newCtor.cid
+  if (newCtor.release) {
+    // temporary global mixin strategy used in < 2.0.0-alpha.6
+    newCtor.release()
+  }
+  record.instances.slice().forEach(function (instance) {
+    if (instance.$vnode && instance.$vnode.context) {
+      instance.$vnode.context.$forceUpdate()
+    } else {
+      console.warn('Root or manually mounted instance modified. Full reload required.')
+    }
+  })
+})
+
 },{}],5:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("ul[data-v-52972138], ul li[data-v-52972138] {\n  list-style-type: none;\n  margin: 0;\n  padding: 0;\n}")
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("ul[data-v-4d4d1ade], ul li[data-v-4d4d1ade] {\n  list-style-type: none;\n  margin: 0;\n  padding: 0;\n}")
 ;(function(){
 module.exports = {
   name: 'ActionList',
@@ -6573,20 +6573,20 @@ var __vue__options__ = (typeof module.exports === "function"? module.exports.opt
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
 __vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('ul',_vm._l((_vm.actions),function(action){return _c('li',[_c('span',{class:action.type},[_vm._v(_vm._s(action.message))])])}))}
 __vue__options__.staticRenderFns = []
-__vue__options__._scopeId = "data-v-52972138"
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+__vue__options__._scopeId = "data-v-4d4d1ade"
+if (module.hot) {(function () {  var hotAPI = require("vueify/node_modules/vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   module.hot.dispose(__vueify_style_dispose__)
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-52972138", __vue__options__)
+    hotAPI.createRecord("data-v-4d4d1ade", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-52972138", __vue__options__)
+    hotAPI.rerender("data-v-4d4d1ade", __vue__options__)
   }
 })()}
-},{"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],6:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("div[data-v-b81d9048] {\n  align-items: center;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  margin: 0 auto;\n}\n\ndiv > h1[data-v-b81d9048] {\n  margin: -1em auto 0 auto;\n}\n\ndiv > form[data-v-b81d9048] {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  width: 100%;\n}")
+},{"vue":2,"vueify/lib/insert-css":3,"vueify/node_modules/vue-hot-reload-api":4}],6:[function(require,module,exports){
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("div[data-v-6de13ffc] {\n  align-items: center;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  margin: 0 auto;\n}\n\ndiv > h1[data-v-6de13ffc] {\n  margin: -1em auto 0 auto;\n}\n\ndiv > form[data-v-6de13ffc] {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  width: 100%;\n}")
 ;(function(){
 const connection = require('../../socket.js');
 
@@ -6613,20 +6613,20 @@ var __vue__options__ = (typeof module.exports === "function"? module.exports.opt
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
 __vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('div',[_c('h1',[_vm._v("Card Games")]),_vm._v(" "),_c('form',{staticClass:"green",on:{"submit":_vm.setName}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.name),expression:"name"}],attrs:{"type":"text","placeholder":"Username","pattern":"[a-zA-Z0-9 ]{3,20}","required":""},domProps:{"value":_vm._s(_vm.name)},on:{"input":function($event){if($event.target.composing){ return; }_vm.name=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Connect")])])]):_vm._e()}
 __vue__options__.staticRenderFns = []
-__vue__options__._scopeId = "data-v-b81d9048"
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+__vue__options__._scopeId = "data-v-6de13ffc"
+if (module.hot) {(function () {  var hotAPI = require("vueify/node_modules/vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   module.hot.dispose(__vueify_style_dispose__)
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-b81d9048", __vue__options__)
+    hotAPI.createRecord("data-v-6de13ffc", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-b81d9048", __vue__options__)
+    hotAPI.rerender("data-v-6de13ffc", __vue__options__)
   }
 })()}
-},{"../../socket.js":11,"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],7:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("div[data-v-69c5a998] {\n  align-items: center;\n  background-color: rgba(0, 0, 0, 0.1);\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  justify-content: flex-start;\n  width: 25%;\n}\n\ndiv > form[data-v-69c5a998] {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  padding: 1em;\n}\n\ndiv > form > h1[data-v-69c5a998] {\n  margin: 0 auto 0 auto;\n}")
+},{"../../socket.js":11,"vue":2,"vueify/lib/insert-css":3,"vueify/node_modules/vue-hot-reload-api":4}],7:[function(require,module,exports){
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("div[data-v-abd33384] {\n  align-items: center;\n  background-color: rgba(0, 0, 0, 0.1);\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  justify-content: flex-start;\n  width: 25%;\n}\n\ndiv > form[data-v-abd33384] {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  padding: 1em;\n}\n\ndiv > form > h1[data-v-abd33384] {\n  margin: 0 auto 0 auto;\n}")
 ;(function(){
 const connection = require('../../socket.js');
 
@@ -6659,12 +6659,12 @@ module.exports = {
   methods: {
     create: function(evt) {
       evt.preventDefault();
-      connection.emit('room::create', this.name);
+      connection.emit('rooms::create', this.name);
       this.name = null;
     },
     join: function(evt) {
       evt.preventDefault();
-      connection.emit('room::join', {user: this.$parent.user, code: this.code});
+      connection.emit('room::join', this.code);
       this.code = null;
     }
   }
@@ -6676,20 +6676,20 @@ var __vue__options__ = (typeof module.exports === "function"? module.exports.opt
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
 __vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('div',[_c('form',{staticClass:"green",on:{"submit":_vm.create}},[_c('h1',[_vm._v("Create Room")]),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.name),expression:"name"}],attrs:{"type":"text","placeholder":"Room name","pattern":"[a-zA-Z0-9 ]{3,20}","required":""},domProps:{"value":_vm._s(_vm.name)},on:{"input":function($event){if($event.target.composing){ return; }_vm.name=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Create")])]),_vm._v(" "),_c('form',{staticClass:"green",on:{"submit":_vm.join}},[_c('h1',[_vm._v("Join Room")]),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.code),expression:"code"}],attrs:{"type":"text","placeholder":"Room code","pattern":"[A-Z]{4}"},domProps:{"value":_vm._s(_vm.code)},on:{"input":function($event){if($event.target.composing){ return; }_vm.code=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Join")])]),_vm._v(" "),_c('room-list',{ref:"rooms"}),_vm._v(" "),_c('action-list',{ref:"actions"})],1):_vm._e()}
 __vue__options__.staticRenderFns = []
-__vue__options__._scopeId = "data-v-69c5a998"
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+__vue__options__._scopeId = "data-v-abd33384"
+if (module.hot) {(function () {  var hotAPI = require("vueify/node_modules/vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   module.hot.dispose(__vueify_style_dispose__)
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-69c5a998", __vue__options__)
+    hotAPI.createRecord("data-v-abd33384", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-69c5a998", __vue__options__)
+    hotAPI.reload("data-v-abd33384", __vue__options__)
   }
 })()}
-},{"../../socket.js":11,"../ActionList/ActionList.vue":5,"../RoomList/RoomList.vue":8,"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],8:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("ul[data-v-818a8250], ul li[data-v-818a8250] {\n  list-style-type: none;\n  margin: 0;\n  padding: 0;\n}")
+},{"../../socket.js":11,"../ActionList/ActionList.vue":5,"../RoomList/RoomList.vue":8,"vue":2,"vueify/lib/insert-css":3,"vueify/node_modules/vue-hot-reload-api":4}],8:[function(require,module,exports){
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("ul[data-v-00e90904], ul li[data-v-00e90904] {\n  list-style-type: none;\n  margin: 0;\n  padding: 0;\n}")
 ;(function(){
 const connection = require('../../socket.js');
 
@@ -6720,20 +6720,20 @@ var __vue__options__ = (typeof module.exports === "function"? module.exports.opt
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
 __vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('ul',_vm._l((_vm.rooms),function(room,index){return _c('li',[_vm._v("\n    "+_vm._s(room.name)+" ("+_vm._s(room.code)+")\n    "),_c('button',{attrs:{"type":"button"},on:{"click":function($event){_vm.leave(index)}}},[_vm._v("X")])])}))}
 __vue__options__.staticRenderFns = []
-__vue__options__._scopeId = "data-v-818a8250"
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+__vue__options__._scopeId = "data-v-00e90904"
+if (module.hot) {(function () {  var hotAPI = require("vueify/node_modules/vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   module.hot.dispose(__vueify_style_dispose__)
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-818a8250", __vue__options__)
+    hotAPI.createRecord("data-v-00e90904", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-818a8250", __vue__options__)
+    hotAPI.rerender("data-v-00e90904", __vue__options__)
   }
 })()}
-},{"../../socket.js":11,"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],9:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("header[data-v-1dde2598] {\n  display: flex;\n  flex-direction: row;\n  background-color: #516D37;\n}\n\nheader h1[data-v-1dde2598] {\n  margin: 0;\n  padding: 0.25em 0.25em;\n  text-align: right;\n}\n\nheader form[data-v-1dde2598] {\n  flex-grow: 1;\n}\n\nsection[data-v-1dde2598], main[data-v-1dde2598] {\n  background: transparent;\n  display: flex;\n  height: 100%;\n}\n\nsection[data-v-1dde2598] {\n  flex-direction: column;\n  width: 75%;\n}\n\nmain[data-v-1dde2598] {\n  flex-direction: row;\n  width: 100%;\n}\n\nul[data-v-1dde2598] {\n  box-sizing: border-box;\n  list-style-type: none;\n  margin: 0;\n  padding: 0;\n}\n\nul li[data-v-1dde2598] {\n  box-sizing: border-box;\n}\n\nul.chat[data-v-1dde2598] {\n  background-color: transparent;\n  flex-grow: 1;\n  font-size: 1.25em;\n  /*width: 100%;*/\n}\n\nul.chat li[data-v-1dde2598] {\n  display: block;\n  margin: 0;\n  padding: 0.5em;\n  width: 100%;\n}\n\nul.chat li[data-v-1dde2598]:nth-child(even) {\n  color: #626155;\n  background-color: rgba(255, 255, 255, 0.25);\n}\n\nul.chat li[data-v-1dde2598]:nth-child(odd) {\n  color: #ECECE9;\n  background-color: rgba(0, 0, 0, 0.25);\n}\n\nul.chat li .user[data-v-1dde2598] {\n  background-color: #7CA754;\n  border-radius: 50%;\n  color: #516D37;\n  display: inline-block;\n  font-family: 'Roboto Slab', serif;\n  min-width: 1.25em;\n  text-align: center;\n}\n\nform[data-v-1dde2598] {\n  display: flex;\n  flex-direction: row;\n  margin: 0;\n  padding: 0;\n  height: 50px;\n}\n\nform input[type=text][data-v-1dde2598] {\n  border: none;\n  display: inline;\n  height: 100%;\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0 0 1em;\n}\n\nform input[type=text][data-v-1dde2598]:focus {\n  border: none;\n  outline: none;\n}\n\nform button[type=submit][data-v-1dde2598] {\n  border: none;\n  display: inline;\n  height: 100%;\n  margin: 0;\n  padding: 0;\n  width: 9%;\n}")
+},{"../../socket.js":11,"vue":2,"vueify/lib/insert-css":3,"vueify/node_modules/vue-hot-reload-api":4}],9:[function(require,module,exports){
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("header[data-v-4fb0e83e] {\n  display: flex;\n  flex-direction: row;\n  background-color: #516D37;\n}\n\nheader h1[data-v-4fb0e83e] {\n  margin: 0;\n  padding: 0.25em 0.25em;\n  text-align: right;\n}\n\nheader form[data-v-4fb0e83e] {\n  flex-grow: 1;\n}\n\nsection[data-v-4fb0e83e], main[data-v-4fb0e83e] {\n  background: transparent;\n  display: flex;\n  height: 100%;\n}\n\nsection[data-v-4fb0e83e] {\n  flex-direction: column;\n  width: 75%;\n}\n\nmain[data-v-4fb0e83e] {\n  flex-direction: row;\n  width: 100%;\n}\n\nul[data-v-4fb0e83e] {\n  box-sizing: border-box;\n  list-style-type: none;\n  margin: 0;\n  padding: 0;\n}\n\nul li[data-v-4fb0e83e] {\n  box-sizing: border-box;\n}\n\nul.chat[data-v-4fb0e83e] {\n  background-color: transparent;\n  flex-grow: 1;\n  font-size: 1.25em;\n  /*width: 100%;*/\n}\n\nul.chat li[data-v-4fb0e83e] {\n  display: block;\n  margin: 0;\n  padding: 0.5em;\n  width: 100%;\n}\n\nul.chat li[data-v-4fb0e83e]:nth-child(even) {\n  color: #626155;\n  background-color: rgba(255, 255, 255, 0.25);\n}\n\nul.chat li[data-v-4fb0e83e]:nth-child(odd) {\n  color: #ECECE9;\n  background-color: rgba(0, 0, 0, 0.25);\n}\n\nul.chat li .user[data-v-4fb0e83e] {\n  background-color: #7CA754;\n  border-radius: 50%;\n  color: #516D37;\n  display: inline-block;\n  font-family: 'Roboto Slab', serif;\n  min-width: 1.25em;\n  text-align: center;\n}\n\nform[data-v-4fb0e83e] {\n  display: flex;\n  flex-direction: row;\n  margin: 0;\n  padding: 0;\n  height: 50px;\n}\n\nform input[type=text][data-v-4fb0e83e] {\n  border: none;\n  display: inline;\n  height: 100%;\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0 0 1em;\n}\n\nform input[type=text][data-v-4fb0e83e]:focus {\n  border: none;\n  outline: none;\n}\n\nform button[type=submit][data-v-4fb0e83e] {\n  border: none;\n  display: inline;\n  height: 100%;\n  margin: 0;\n  padding: 0;\n  width: 9%;\n}")
 ;(function(){
 const connection = require('../../socket.js');
 
@@ -6743,6 +6743,7 @@ module.exports = {
     return {
       visible: false,
       room: null,
+      owner: false,
       game: null,
       message: null,
       messages: []
@@ -6773,10 +6774,10 @@ module.exports = {
     },
     start: function(evt) {
       evt.preventDefault();
-      connection.emit('room::start', {
-        code: this.room.code,
-        game: this.game
-      });
+      connection.emit('room::start', this.room.code, this.game);
+    },
+    play: function() {
+      connection.emit('game::play', this.room.code);
     }
   }
 };
@@ -6785,21 +6786,21 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('section',[_c('header',[_c('form',{on:{"submit":_vm.start}},[_c('select',{directives:[{name:"model",rawName:"v-model",value:(_vm.game),expression:"game"}],attrs:{"required":""},on:{"change":function($event){_vm.game=Array.prototype.filter.call($event.target.options,function(o){return o.selected}).map(function(o){var val = "_value" in o ? o._value : o.value;return val})[0]}}},[_c('option',{attrs:{"value":"war"}},[_vm._v("War")])]),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Start")])]),_vm._v(" "),_c('h1',[_vm._v(_vm._s(_vm.room.name))])]),_vm._v(" "),_c('main',[_c('ul',{staticClass:"chat"},_vm._l((_vm.messages),function(message){return _c('li',[_c('span',{staticClass:"user"},[_vm._v(_vm._s(_vm._f("firstLetter")(message.user)))]),_vm._v(" "),_c('span',{staticClass:"message"},[_vm._v(_vm._s(message.message))])])})),_vm._v(" "),(_vm.members)?_c('ul',{staticClass:"members"},_vm._l((_vm.members),function(member){return _c('li',[_vm._v("\n        "+_vm._s(member.name)+"\n      ")])})):_vm._e()]),_vm._v(" "),_c('form',{on:{"submit":_vm.chat}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.message),expression:"message"}],attrs:{"type":"text"},domProps:{"value":_vm._s(_vm.message)},on:{"input":function($event){if($event.target.composing){ return; }_vm.message=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Send")])])]):_vm._e()}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('section',[_c('header',[(_vm.owner)?_c('form',{on:{"submit":_vm.start}},[_c('select',{directives:[{name:"model",rawName:"v-model",value:(_vm.game),expression:"game"}],attrs:{"required":""},on:{"change":function($event){_vm.game=Array.prototype.filter.call($event.target.options,function(o){return o.selected}).map(function(o){var val = "_value" in o ? o._value : o.value;return val})[0]}}},[_c('option',{attrs:{"value":"war"}},[_vm._v("War")])]),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Start")])]):_vm._e(),_vm._v(" "),_c('h1',[_vm._v(_vm._s(_vm.room.name))])]),_vm._v(" "),_c('main',[_c('ul',{staticClass:"chat"},_vm._l((_vm.messages),function(message){return _c('li',[_c('span',{staticClass:"user"},[_vm._v(_vm._s(_vm._f("firstLetter")(message.user)))]),_vm._v(" "),_c('span',{staticClass:"message"},[_vm._v(_vm._s(message.message))])])})),_vm._v(" "),(_vm.members)?_c('ul',{staticClass:"members"},_vm._l((_vm.members),function(member){return _c('li',[_vm._v("\n        "+_vm._s(member.name)+"\n      ")])})):_vm._e()]),_vm._v(" "),_c('form',[_c('button',{attrs:{"type":"button"},on:{"click":_vm.play}},[_vm._v("Play")])]),_vm._v(" "),_c('form',{on:{"submit":_vm.chat}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.message),expression:"message"}],attrs:{"type":"text"},domProps:{"value":_vm._s(_vm.message)},on:{"input":function($event){if($event.target.composing){ return; }_vm.message=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Send")])])]):_vm._e()}
 __vue__options__.staticRenderFns = []
-__vue__options__._scopeId = "data-v-1dde2598"
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+__vue__options__._scopeId = "data-v-4fb0e83e"
+if (module.hot) {(function () {  var hotAPI = require("vueify/node_modules/vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   module.hot.dispose(__vueify_style_dispose__)
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-1dde2598", __vue__options__)
+    hotAPI.createRecord("data-v-4fb0e83e", __vue__options__)
   } else {
-    hotAPI.reload("data-v-1dde2598", __vue__options__)
+    hotAPI.rerender("data-v-4fb0e83e", __vue__options__)
   }
 })()}
-},{"../../socket.js":11,"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],10:[function(require,module,exports){
+},{"../../socket.js":11,"vue":2,"vueify/lib/insert-css":3,"vueify/node_modules/vue-hot-reload-api":4}],10:[function(require,module,exports){
 const connection = require('./socket.js');
 
 let app = new Vue({ // eslint-disable-line
@@ -6821,7 +6822,7 @@ let app = new Vue({ // eslint-disable-line
       this.$refs.roomForm.user = id;
     });
     connection.on('room::joined', (room) => {
-      this.$refs.room.user = this.user;
+      this.$refs.room.owner = connection.id === room.owner;
       this.$refs.room.room = room;
       this.$refs.room.visible = true;
     });

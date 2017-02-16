@@ -1,6 +1,6 @@
 <section v-if="visible">
   <header>
-    <form v-on:submit="start">
+    <form v-if="owner" v-on:submit="start">
       <select v-model="game" required>
         <option value="war">War</option>
       </select>
@@ -21,6 +21,9 @@
       </li>
     </ul>
   </main>
+  <form>
+    <button type="button" v-on:click="play">Play</button>
+  </form>
   <form v-on:submit="chat">
     <input type="text" v-model="message">
     <button type="submit">Send</button>

@@ -1,4 +1,5 @@
 const debug = require('debug')('cardgames:game:war');
+const _ = require('lodash');
 const Deck = require('../../deck/deck.js');
 
 class War {
@@ -6,14 +7,17 @@ class War {
     this.players = {};
     this.deck = new Deck();
     this.inPlay = {};
+    this.prizePool = [];
   }
 
   gameLoop() {
+    // TODO: Lock down game and room; prevent other players from joining
+    this.deal();
     setInterval(() => {
       debug('checking game state');
       debug('all played: ', this.allPlayed);
       debug(this.inPlay);
-      if (this.allPlayed) this.compare();
+      if (this.allPlayed) this.determineWinner();
     }, 1000);
   }
 
@@ -41,20 +45,55 @@ class War {
   }
 
   play(id) {
+    // TODO: Add phase attribute to differentiate between regular play and "war" play
     let player = this.players[id];
     if (!player) return;
     this.inPlay[id] = player.hand.shift();
+    // TODO: Emit event to display card to player
   }
 
-  compare() {
-    let keys = Object.keys(this.inPlay);
-    let max = keys.reduce((acc, cv, ci, arr) => {
-      let curr = this.inPlay[cv].value;
-      let prev = this.inPlay[acc].value;
-      if (curr > prev) acc = cv;
-      return acc;
+  determineWinner() {
+    let winner = this.winner;
+    if (winner) {
+      debug(io.sockets.connected[winner].name, 'won!'); // Print winner server side
+      this.giveCards();
+      // TODO: Emit event to tell player they won
+      // TODO: Give cards in play to winning player
+    } else {
+      debug('WAR!'); // If we picked multiple players, move in to war phase
+      // TODO: Move cards "in play" to "prize pool"
+      // TODO: Emit event to allow players to play another card
+    }
+  }
+
+  giveCards() {
+    let winner = this.players[this.winner];
+    _.forOwn(this.inPlay, (card) => {
+      this.prizePool.push(card);
     });
-    debug(max, this.inPlay[max]);
+    this.prizePool = _.shuffle(this.prizePool);
+    winner.hand = [...winner.hand, ...this.prizePool];
+    this.inPlay = {};
+    this.prizePool = [];
+  }
+
+  get max() {
+    let max = -1; // Set max negative to guarantee reset based on card values
+    _.forOwn(this.inPlay, (card) => { // Loop through cards in play
+      max = (card.value > max) ? card.value : max; // Set max if current card value is greater
+    });
+    return max;
+  }
+
+  get winners() {
+    let list = _.pickBy(this.inPlay, (card) => { // Get the players who played cards with values equal to the max value
+      return card.value === this.max;
+    });
+    return _.keys(list); // Return the player socket ID's
+  }
+
+  get winner() {
+    return (this.winners.length === 1) ? this.winners[0] : null; // If there is one winner, return them, otherwise return null
   }
 
   get playerCount() {

@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 class Deck {
   constructor() {
     this.cards = [];
@@ -13,15 +15,7 @@ class Deck {
   }
 
   shuffle() {
-    let m = this.cards.length,
-        t, i;
-
-    while (m) {
-      i = Math.floor(Math.random() * m--);
-      t = this.cards[m];
-      this.cards[m] = this.cards[i];
-      this.cards[i] = t;
-    }
+    this.cards = _.shuffle(this.cards);
   }
 }
 

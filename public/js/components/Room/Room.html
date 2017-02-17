@@ -22,7 +22,7 @@
     </ul>
   </main>
   <form>
-    <button type="button" v-on:click="play">Play</button>
+    <button type="button" v-on:click="play" :disabled="played">Play</button>
   </form>
   <form v-on:submit="chat">
     <input type="text" v-model="message">

@@ -1,28 +1,42 @@
 const debug = require('debug')('cardgames:game:war');
 const _ = require('lodash');
 const Deck = require('../../deck/deck.js');
+// const states = ['normal', 'war'];
 
 class War {
-  constructor() {
+  constructor(room) {
+    this.room = room;
     this.players = {};
     this.deck = new Deck();
     this.inPlay = {};
     this.prizePool = [];
+    this.state = 'normal';
   }
 
   gameLoop() {
     // TODO: Lock down game and room; prevent other players from joining
+    // TODO: Add game events to each player
+    io.sockets.in(this.room).emit('game::started', 'Game started');
     this.deal();
+    _.forEach(this.players, (player, id) => {
+      player.socket.on('game::play', () => {
+        debug('card played');
+        this.play(id);
+      });
+    });
     setInterval(() => {
       debug('checking game state');
       debug('all played: ', this.allPlayed);
       debug(this.inPlay);
-      if (this.allPlayed) this.determineWinner();
+      if (this.allPlayed) {
+        this.determineWinner();
+      };
     }, 1000);
   }
 
-  addPlayer(id) {
-    this.players[id] = {
+  addPlayer(socket) {
+    this.players[socket.id] = {
+      socket: socket,
       hand: []
     };
     debug(this.playerCount);
@@ -46,24 +60,36 @@ class War {
 
   play(id) {
     // TODO: Add phase attribute to differentiate between regular play and "war" play
+    // TODO: Emit event that disallows player from
     let player = this.players[id];
     if (!player) return;
     this.inPlay[id] = player.hand.shift();
+    if (this.state === 'war') this.prizePool.push(player.hand.shift());
+    player.socket.emit('game::played', true);
+    io.sockets.in(this.room).emit('game::message', player.socket.name);
     // TODO: Emit event to display card to player
   }
 
   determineWinner() {
     let winner = this.winner;
+    debug(winner);
     if (winner) {
-      debug(io.sockets.connected[winner].name, 'won!'); // Print winner server side
+      debug(winner.socket.name, 'won!'); // Print winner server side
+      io.sockets.in(this.room).emit('game::handWon', winner.socket.name);
       this.giveCards();
+      this.state = 'normal';
       // TODO: Emit event to tell player they won
       // TODO: Give cards in play to winning player
     } else {
       debug('WAR!'); // If we picked multiple players, move in to war phase
+      this.state = 'war';
+      _.forOwn(this.inPlay, (card) => { // Move in play cards to prize pool
+        this.prizePool.push(card);
+      });
       // TODO: Move cards "in play" to "prize pool"
       // TODO: Emit event to allow players to play another card
     }
+    io.sockets.in(this.room).emit('game::played', false);
   }
 
   giveCards() {
@@ -89,11 +115,13 @@ class War {
     let list = _.pickBy(this.inPlay, (card) => { // Get the players who played cards with values equal to the max value
       return card.value === this.max;
     });
-    return _.keys(list); // Return the player socket ID's
+    return list; // Return the player socket ID's
   }
 
   get winner() {
-    return (this.winners.length === 1) ? this.winners[0] : null; // If there is one winner, return them, otherwise return null
+    let ids = _.keys(this.winners);
+    let single = ids.length === 1;
+    return (single) ? _.pick(this.players, ids[0]) : null; // If there is one winner, return them, otherwise return null
   }
 
   get playerCount() {

@@ -8,8 +8,10 @@ module.exports = {
       room: null,
       owner: false,
       game: null,
+      played: false,
       message: null,
-      messages: []
+      messages: [],
+      notifications: []
     };
   },
   created: function() {
@@ -20,6 +22,22 @@ module.exports = {
 
     connection.on('room::message', (message) => {
       this.messages.push(message);
+    });
+
+    connection.on('game::started', (message) => {
+      console.log('Game started');
+    });
+
+    connection.on('game::handWon', (winner) => {
+      console.log(winner, 'won!');
+    });
+
+    connection.on('game::played', (value) => {
+      this.played = value;
+    });
+
+    connection.on('game::message', (message) => {
+      console.log(message);
     });
   },
   filters: {

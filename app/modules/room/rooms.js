@@ -34,9 +34,9 @@ class Rooms extends Base {
         debug(socket.name, 'wants to start a game of', game, 'in', code);
         this.find(code).start(socket, game);
       });
-      socket.on('game::play', (code) => {
-        this.find(code).game.play(socket.id);
-      });
+      // socket.on('game::play', (code) => {
+      //   this.find(code).game.play(socket.id);
+      // });
     });
   }
 

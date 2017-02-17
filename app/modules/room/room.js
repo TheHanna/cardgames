@@ -24,7 +24,7 @@ class Room {
       });
       debug(socket.name, 'joined', this.name, 'as', this.getRole(socket.id));
       if (this.game) {
-        this.game.addPlayer(socket.id);
+        this.game.addPlayer(socket);
         debug(socket.name, 'joined game in progress in room', this.name);
       }
       if (this.msgs.length > 0) {
@@ -59,9 +59,9 @@ class Room {
 
   start(socket, game) {
     if (VALID_GAMES.indexOf(game) === -1) return;
-    this.game = new (require(`../games/${game}/${game}.js`));
+    this.game = new (require(`../games/${game}/${game}.js`))(this.code);
     this.members.forEach((member) => {
-      this.game.addPlayer(member.id);
+      this.game.addPlayer(member);
     });
   }
 

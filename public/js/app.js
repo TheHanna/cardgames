@@ -6582,7 +6582,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-52972138", __vue__options__)
   } else {
-    hotAPI.reload("data-v-52972138", __vue__options__)
+    hotAPI.rerender("data-v-52972138", __vue__options__)
   }
 })()}
 },{"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],6:[function(require,module,exports){
@@ -6622,7 +6622,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-b81d9048", __vue__options__)
   } else {
-    hotAPI.reload("data-v-b81d9048", __vue__options__)
+    hotAPI.rerender("data-v-b81d9048", __vue__options__)
   }
 })()}
 },{"../../socket.js":11,"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],7:[function(require,module,exports){
@@ -6685,7 +6685,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-69c5a998", __vue__options__)
   } else {
-    hotAPI.reload("data-v-69c5a998", __vue__options__)
+    hotAPI.rerender("data-v-69c5a998", __vue__options__)
   }
 })()}
 },{"../../socket.js":11,"../ActionList/ActionList.vue":5,"../RoomList/RoomList.vue":8,"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],8:[function(require,module,exports){
@@ -6729,7 +6729,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-818a8250", __vue__options__)
   } else {
-    hotAPI.reload("data-v-818a8250", __vue__options__)
+    hotAPI.rerender("data-v-818a8250", __vue__options__)
   }
 })()}
 },{"../../socket.js":11,"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],9:[function(require,module,exports){
@@ -6745,8 +6745,10 @@ module.exports = {
       room: null,
       owner: false,
       game: null,
+      played: false,
       message: null,
-      messages: []
+      messages: [],
+      notifications: []
     };
   },
   created: function() {
@@ -6757,6 +6759,22 @@ module.exports = {
 
     connection.on('room::message', (message) => {
       this.messages.push(message);
+    });
+
+    connection.on('game::started', (message) => {
+      console.log('Game started');
+    });
+
+    connection.on('game::handWon', (winner) => {
+      console.log(winner, 'won!');
+    });
+
+    connection.on('game::played', (value) => {
+      this.played = value;
+    });
+
+    connection.on('game::message', (message) => {
+      console.log(message);
     });
   },
   filters: {
@@ -6786,7 +6804,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('section',[_c('header',[(_vm.owner)?_c('form',{on:{"submit":_vm.start}},[_c('select',{directives:[{name:"model",rawName:"v-model",value:(_vm.game),expression:"game"}],attrs:{"required":""},on:{"change":function($event){_vm.game=Array.prototype.filter.call($event.target.options,function(o){return o.selected}).map(function(o){var val = "_value" in o ? o._value : o.value;return val})[0]}}},[_c('option',{attrs:{"value":"war"}},[_vm._v("War")])]),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Start")])]):_vm._e(),_vm._v(" "),_c('h1',[_vm._v(_vm._s(_vm.room.name))])]),_vm._v(" "),_c('main',[_c('ul',{staticClass:"chat"},_vm._l((_vm.messages),function(message){return _c('li',[_c('span',{staticClass:"user"},[_vm._v(_vm._s(_vm._f("firstLetter")(message.user)))]),_vm._v(" "),_c('span',{staticClass:"message"},[_vm._v(_vm._s(message.message))])])})),_vm._v(" "),(_vm.members)?_c('ul',{staticClass:"members"},_vm._l((_vm.members),function(member){return _c('li',[_vm._v("\n        "+_vm._s(member.name)+"\n      ")])})):_vm._e()]),_vm._v(" "),_c('form',[_c('button',{attrs:{"type":"button"},on:{"click":_vm.play}},[_vm._v("Play")])]),_vm._v(" "),_c('form',{on:{"submit":_vm.chat}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.message),expression:"message"}],attrs:{"type":"text"},domProps:{"value":_vm._s(_vm.message)},on:{"input":function($event){if($event.target.composing){ return; }_vm.message=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Send")])])]):_vm._e()}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('section',[_c('header',[(_vm.owner)?_c('form',{on:{"submit":_vm.start}},[_c('select',{directives:[{name:"model",rawName:"v-model",value:(_vm.game),expression:"game"}],attrs:{"required":""},on:{"change":function($event){_vm.game=Array.prototype.filter.call($event.target.options,function(o){return o.selected}).map(function(o){var val = "_value" in o ? o._value : o.value;return val})[0]}}},[_c('option',{attrs:{"value":"war"}},[_vm._v("War")])]),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Start")])]):_vm._e(),_vm._v(" "),_c('h1',[_vm._v(_vm._s(_vm.room.name))])]),_vm._v(" "),_c('main',[_c('ul',{staticClass:"chat"},_vm._l((_vm.messages),function(message){return _c('li',[_c('span',{staticClass:"user"},[_vm._v(_vm._s(_vm._f("firstLetter")(message.user)))]),_vm._v(" "),_c('span',{staticClass:"message"},[_vm._v(_vm._s(message.message))])])})),_vm._v(" "),(_vm.members)?_c('ul',{staticClass:"members"},_vm._l((_vm.members),function(member){return _c('li',[_vm._v("\n        "+_vm._s(member.name)+"\n      ")])})):_vm._e()]),_vm._v(" "),_c('form',[_c('button',{attrs:{"type":"button","disabled":_vm.played},on:{"click":_vm.play}},[_vm._v("Play")])]),_vm._v(" "),_c('form',{on:{"submit":_vm.chat}},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.message),expression:"message"}],attrs:{"type":"text"},domProps:{"value":_vm._s(_vm.message)},on:{"input":function($event){if($event.target.composing){ return; }_vm.message=$event.target.value}}}),_vm._v(" "),_c('button',{attrs:{"type":"submit"}},[_vm._v("Send")])])]):_vm._e()}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-1dde2598"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -6797,7 +6815,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-1dde2598", __vue__options__)
   } else {
-    hotAPI.reload("data-v-1dde2598", __vue__options__)
+    hotAPI.rerender("data-v-1dde2598", __vue__options__)
   }
 })()}
 },{"../../socket.js":11,"vue":3,"vue-hot-reload-api":2,"vueify/lib/insert-css":4}],10:[function(require,module,exports){

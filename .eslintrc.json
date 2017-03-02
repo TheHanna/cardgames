@@ -12,7 +12,7 @@
   },
   "extends": ["google"],
   "rules": {
-    "arrow-parens": [1, "always"],
+    "arrow-parens": [1, "as-needed"],
     "linebreak-style": 2,
     "max-len": [1, 120, 4, {
       "ignoreComments": true,

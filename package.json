@@ -9,5 +9,9 @@
   "main": "index.js",
   "scripts": {},
   "author": "Brian D. Hanna",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^3.16.1",
+    "eslint-config-google": "^0.7.1"
+  }
 }

@@ -1,34 +1,13 @@
 {
   "name": "cardgames",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/TheHanna/cardgames.git"
+  },
   "version": "0.0.1",
   "description": "A simple set of card games",
   "main": "index.js",
-  "scripts": {
-    "start": "bash app/scripts/start.sh"
-  },
+  "scripts": {},
   "author": "Brian D. Hanna",
-  "license": "MIT",
-  "dependencies": {
-    "debug": "^2.6.0",
-    "express": "^4.14.0",
-    "lodash": "^4.17.4",
-    "socket.io": "^1.7.2",
-    "uuid": "^3.0.1",
-    "winston": "^2.3.0"
-  },
-  "devDependencies": {
-    "browser-sync": "^2.18.6",
-    "browserify": "^14.0.0",
-    "eslint": "^3.13.1",
-    "eslint-config-google": "^0.7.1",
-    "gulp": "^3.9.1",
-    "gulp-browserify": "^0.5.1",
-    "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^2.4.0",
-    "gulp-uglify": "^2.0.1",
-    "gulp-util": "^3.0.8",
-    "gulp-vueify": "0.0.3",
-    "vue": "^2.1.10",
-    "vueify": "^9.4.0"
-  }
+  "license": "MIT"
 }

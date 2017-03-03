@@ -10,6 +10,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "debug": "^2.6.1",
     "express": "^4.15.0",
     "lodash": "^4.17.4",
     "socket.io": "^1.7.3"

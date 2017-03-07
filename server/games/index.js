@@ -1,8 +1,6 @@
 const debug = require('debug')('cg:mw:games:index');
 const _ = require('lodash');
 const validGames = ['war'];
-let game;
-
 
 function generateCode() {
   let code = ''; // Blank string to store code string
@@ -14,22 +12,51 @@ function generateCode() {
   return code;
 }
 
+function valid(game) {
+  return _.includes(validGames, game);
+}
+
 module.exports = function(client, next) {
-  debug(client.server.sockets.adapter.rooms);
-  client.on('game::start', (name, code) => {
-    if (!code) {
-      debug(client.name, 'wants to start a game of', name);
-      if (_.includes(validGames, name)) {
-        game = require(`./${name}`);
-        code = generateCode();
-        client.use(game);
-        client.join(code);
-        client.emit('game::started', code);
-        debug(client.name, 'successfully started a game of', name, 'with code', code);
-      }
+  // Define server and rooms at the top for easy reference
+  let server = client.server;
+  let rooms = server.sockets.adapter.rooms;
+
+  // Create a game
+  client.on('game::create', (name, fn) => {
+    if (!valid(name)) {
+      client.emit('game::error', `${name} is not a valid game`);
+      return;
+    }
+    let code = generateCode();
+    client.join(code);
+    let room = rooms[code];
+    room.game = require(`./${name}`);
+    fn({code: code, players: room.length, dealer: true});
+  });
+
+  // Join a game that's been created
+  client.on('game::join', code => {
+    let room = rooms[code];
+    if (room) {
+      client.join(code);
+      server.to(code).emit('game::joined', room.length);
     } else {
-      debug(client.name, 'wants to join game', code);
+      client.emit('game::error', `${code} is not a valid game`);
+      return;
     }
   });
+
+  // Attempt to start the game
+  client.on('game::start', code => {
+    let room = rooms[code];
+    if (room && room.game.ready(room.length)) {
+      room.game = new room.game.game(server, code);
+      server.to(code).emit('game::started', true);
+    } else {
+      client.emit('game::error', 'Game is not ready');
+    }
+  });
+
+  // Move on to the next middleware
   next();
 };

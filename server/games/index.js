@@ -1,15 +1,17 @@
-const debug = require('debug')('cg:mw:games:index');
+// const debug = require('debug')('cg:mw:games:index');
 const _ = require('lodash');
 const validGames = ['war'];
+let server;
+let rooms;
 
 function generateCode() {
   let code = ''; // Blank string to store code string
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const max = 4;
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; // Only allow uppercase alpha chars
+  const max = 4; // Limit of 4 characters
   for (let position = 0; position < max; position++) {
     code += possible.charAt(Math.floor(Math.random() * possible.length));
   }
-  return code;
+  return (!rooms[code]) ? code : generateCode();
 }
 
 function valid(game) {
@@ -18,11 +20,11 @@ function valid(game) {
 
 module.exports = function(client, next) {
   // Define server and rooms at the top for easy reference
-  let server = client.server;
-  let rooms = server.sockets.adapter.rooms;
+  server = client.server;
+  rooms = server.sockets.adapter.rooms;
 
   // Create a game
-  client.on('game::create', (name, fn) => {
+  client.on('game::create', name => {
     if (!valid(name)) {
       client.emit('game::error', `${name} is not a valid game`);
       return;
@@ -31,15 +33,18 @@ module.exports = function(client, next) {
     client.join(code);
     let room = rooms[code];
     room.game = require(`./${name}`);
-    fn({code: code, players: room.length, dealer: true});
+    room.playing = false;
+    client.emit('game::joined', code, true);
+    server.to(code).emit('player::joined', room.length);
   });
 
   // Join a game that's been created
   client.on('game::join', code => {
     let room = rooms[code];
-    if (room) {
+    if (room && !room.playing) {
       client.join(code);
-      server.to(code).emit('game::joined', room.length);
+      client.emit('game::joined', code, false);
+      server.to(code).emit('player::joined', room.length);
     } else {
       client.emit('game::error', `${code} is not a valid game`);
       return;
@@ -50,8 +55,8 @@ module.exports = function(client, next) {
   client.on('game::start', code => {
     let room = rooms[code];
     if (room && room.game.ready(room.length)) {
+      room.playing = true;
       room.game = new room.game.game(server, code);
-      server.to(code).emit('game::started', true);
     } else {
       client.emit('game::error', 'Game is not ready');
     }

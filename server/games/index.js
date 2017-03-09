@@ -1,4 +1,4 @@
-// const debug = require('debug')('cg:mw:games:index');
+const debug = require('debug')('cg:mw:games:index');
 const _ = require('lodash');
 const validGames = ['war'];
 let server;
@@ -25,6 +25,7 @@ module.exports = function(client, next) {
 
   // Create a game
   client.on('game::create', name => {
+    debug('creating game', name);
     if (!valid(name)) {
       client.emit('game::error', `${name} is not a valid game`);
       return;
@@ -60,6 +61,10 @@ module.exports = function(client, next) {
     } else {
       client.emit('game::error', 'Game is not ready');
     }
+  });
+
+  client.on('games::list', fn => {
+    fn(client.rooms);
   });
 
   // Move on to the next middleware

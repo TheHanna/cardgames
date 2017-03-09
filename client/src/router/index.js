@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Games from '@/components/Games'
-import War from '@/components/War/War'
+import War from '@/components/Games/War'
+import connect from '@/components/connect'
 
 Vue.use(Router)
 
@@ -9,13 +10,21 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Games',
-      component: Games
+      name: 'Connect',
+      component: connect,
+      props: false
     },
     {
-      path:'/war',
+      path: '/games',
+      name: 'Games',
+      component: Games,
+      props: true
+    },
+    {
+      path: '/war',
       name: 'War',
-      component: War
+      component: War,
+      props: true
     }
   ]
 })

@@ -1,12 +1,46 @@
 <template>
   <section>
+    <h1>War ({{ code }})</h1>
+  </section>
+</template>
+
+<script>
+export default {
+  name: 'war',
+  props: ['user'],
+  data() {
+    return {
+      code: null,
+      owner: null,
+      players: 0
+    }
+  },
+  created() {
+    this.user.socket.emit('game::create', 'war');
+    this.user.socket.on('game::joined', (code, owner) => {
+      this.code = code;
+      console.log(code, owner);
+    });
+    this.user.socket.on('player::joined', players => {
+      console.log(players);
+    });
+  }
+}
+</script>
+
+<style lang="css">
+</style>
+
+
+<!-- <template>
+  <section>
+    <player-menu :initialName="name" :socket="socket" v-if="socket"></player-menu>
     <h1>{{ game.name | capitalize }}</h1>
     <form v-on:submit="start" v-if="!socket">
       <input type="text" v-model="name" placeholder="Username" pattern="[a-zA-Z0-9 ]{3,20}" required>
       <input type="text" v-model="code" placeholder="Code (optional)">
       <button type="submit">Start</button>
     </form>
-    <player-menu :initialName="name" :socket="socket" v-if="socket"></player-menu>
     <game-area :game="game" :room="code" :socket="socket" v-if="socket"></game-area>
   </section>
 </template>
@@ -37,4 +71,4 @@ export default {
     }
   }
 }
-</script>
+</script> -->

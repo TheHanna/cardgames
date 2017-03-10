@@ -139,6 +139,7 @@ class War extends Game {
 };
 
 module.exports = {
+  name: 'War',
   game: War,
   ready: function(players) {
     return _.inRange(players, 2, 5);

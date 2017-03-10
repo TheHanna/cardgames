@@ -27,6 +27,10 @@ export default {
       this.user.socket = io(url);
       this.user.name = name;
       this.user.socket.emit('name::change', this.user.name);
+      this.user.socket.on('disconnect', () => {
+        this.user.socket = null;
+        this.$router.push('/');
+      });
       this.$router.push({
         name: 'Games',
         params: { user: this.user }

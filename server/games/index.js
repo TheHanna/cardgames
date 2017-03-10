@@ -4,6 +4,15 @@ const validGames = ['war'];
 let server;
 let rooms;
 
+function listRooms() {
+  let gameRooms = {};
+  _.forEach(rooms, (room, code) => {
+    if (code.length > 4) return;
+    gameRooms[code] = room;
+  });
+  return gameRooms;
+}
+
 function generateCode() {
   let code = ''; // Blank string to store code string
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; // Only allow uppercase alpha chars
@@ -32,18 +41,20 @@ module.exports = function(client, next) {
     }
     let code = generateCode();
     client.join(code);
-    let room = rooms[code];
-    room.game = require(`./${name}`);
-    room.playing = false;
+    rooms[code].game = require(`./${name}`);
+    rooms[code].playing = false;
+    server.emit('game::created');
     client.emit('game::joined', code, true);
-    server.to(code).emit('player::joined', room.length);
+    server.to(code).emit('player::joined', rooms[code].length);
   });
 
   // Join a game that's been created
   client.on('game::join', code => {
+    debug(client.name, 'joining room', code);
     let room = rooms[code];
     if (room && !room.playing) {
       client.join(code);
+      server.emit('games::list', listRooms());
       client.emit('game::joined', code, false);
       server.to(code).emit('player::joined', room.length);
     } else {
@@ -63,8 +74,8 @@ module.exports = function(client, next) {
     }
   });
 
-  client.on('games::list', fn => {
-    fn(client.rooms);
+  client.on('games::list', () => {
+    server.emit('games::list', listRooms());
   });
 
   // Move on to the next middleware

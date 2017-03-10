@@ -1,9 +1,9 @@
 <template>
   <ul class="pure-menu-children">
     <li v-for="game in games" class="pure-menu-item">
-      <router-link :to="{ name: 'War', params: { user: user }}" class="pure-menu-link">
+      <span class="pure-menu-link" @click="user.socket.emit('game::create', game)">
         {{ game | capitalize }}
-      </router-link>
+      </span>
     </li>
   </ul>
 </template>

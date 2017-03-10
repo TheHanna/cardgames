@@ -4,17 +4,7 @@
       <router-link to="/" tag="h1">Testing</router-link>
     </div>
     <div class="pure-u-3-5 menu" v-if="user.socket">
-      <nav class="pure-menu pure-menu-horizontal">
-        <ul class="pure-menu-list">
-          <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
-            <a href="#" id="create" class="pure-menu-link">Create</a>
-            <create :user="user"></create>
-          </li>
-          <li class="pure-menu-item">
-            <button type="button" class="pure-button join">Join</button>
-          </li>
-        </ul>
-      </nav>
+      <user-menu :user="user"></user-menu>
     </div>
     <div class="pure-u-1-5 user" v-if="user.socket">
       <h3>{{ user.name }}</h3>
@@ -23,15 +13,13 @@
 </template>
 
 <script>
-import create from '../Games/create';
-import join from '../Games/join';
+import menu from './menu';
 
 export default {
   name: 'header',
   props: ['user'],
   components: {
-    create: create,
-    join: join
+    'user-menu': menu
   }
 }
 </script>

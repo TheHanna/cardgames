@@ -11,7 +11,7 @@ io.use(games);
 
 io.on('connection', client => {
   client.on('disconnecting', reason => {
-    debug(client.name, 'disconnecting!');
+    client.emit('disconnect');
   });
 
   client.on('disconnect', reason => {

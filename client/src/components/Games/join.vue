@@ -1,27 +1,28 @@
 <template>
-  <form class="pure-form" @submit.prevent="join">
-    <input type="text">
-    <select v-model="game">
-      <option v-for="option in games" :value="option">
-        {{ option | capitalize }}
-      </option>
-    </select>
-    <button type="submit"></button>
+  <form class="pure-form" @submit.prevent="user.socket.emit('game::join', code)">
+    <input type="text" v-model="code" pattern="[A-Z]{4}">
+    <button type="submit">Join</button>
   </form>
 </template>
 
 <script>
 export default {
-  name: 'create',
-  props: ['socket'],
-  data () {
-    return {
-      games: ['war'],
-      game: null
-    }
+  name: 'join',
+  data() {
+    return { code: null }
+  },
+  computed: {
+    user() { return this.$store.state.user }
+  },
+  created() {
+    this.user.socket.on('game::joined', (code, owner) => {
+      this.$router.push('/games');
+    });
   },
   methods: {
-    create(evt) { this.socket.emit('game::create', this.game) }
+    join() {
+      this.user.socket.emit('game::join', this.code);
+    }
   }
 }
 </script>

@@ -2,16 +2,18 @@
   <nav class="pure-menu pure-menu-horizontal">
     <ul class="pure-menu-list">
       <li class="pure-menu-item">
-        <router-link :to="{ name: 'Games', params: { user: user } }" class="pure-menu-link">
+        <router-link :to="{ name: 'Games' }" class="pure-menu-link">
           Games
         </router-link>
       </li>
       <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
         <a href="#" id="create" class="pure-menu-link">Create</a>
-        <create :user="user"></create>
+        <create></create>
       </li>
       <li class="pure-menu-item">
-        <button type="button" class="pure-button join">Join</button>
+        <router-link :to="{ name: 'Join' }" class="pure-menu-link">
+          Join
+        </router-link>
       </li>
     </ul>
   </nav>
@@ -22,9 +24,11 @@ import create from '../Games/create';
 
 export default {
   name: 'menu',
-  props: ['user'],
   components: {
     create: create
+  },
+  computed: {
+    user() { return this.$store.state.user }
   }
 }
 </script>

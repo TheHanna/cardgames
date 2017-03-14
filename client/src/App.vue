@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <app-header :user="user"></app-header>
+    <app-header></app-header>
     <section>
-      <router-view @connect="connect" :user="user"></router-view>
+      <router-view></router-view>
     </section>
   </div>
 </template>
@@ -16,26 +16,6 @@ export default {
   components: {
     connect: connect,
     'app-header': header
-  },
-  data() {
-    return {
-      user: { name: '', socket: null }
-    }
-  },
-  methods: {
-    connect(io, url, name) {
-      this.user.socket = io(url);
-      this.user.name = name;
-      this.user.socket.emit('name::change', this.user.name);
-      this.user.socket.on('disconnect', () => {
-        this.user.socket = null;
-        this.$router.push('/');
-      });
-      this.$router.push({
-        name: 'Games',
-        params: { user: this.user }
-      });
-    }
   }
 }
 </script>

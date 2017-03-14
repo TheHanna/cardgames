@@ -4,7 +4,7 @@
       <router-link to="/" tag="h1">Testing</router-link>
     </div>
     <div class="pure-u-3-5 menu" v-if="user.socket">
-      <user-menu :user="user"></user-menu>
+      <user-menu></user-menu>
     </div>
     <div class="pure-u-1-5 user" v-if="user.socket">
       <h3>{{ user.name }}</h3>
@@ -17,9 +17,11 @@ import menu from './menu';
 
 export default {
   name: 'header',
-  props: ['user'],
   components: {
     'user-menu': menu
+  },
+  computed: {
+    user() { return this.$store.state.user }
   }
 }
 </script>

@@ -11,11 +11,13 @@
 <script>
 export default {
   name: 'create',
-  props: ['user'],
   data () {
     return {
       games: ['war']
     }
+  },
+  computed: {
+    user() { return this.$store.state.user }
   }
 }
 </script>

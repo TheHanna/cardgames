@@ -10,21 +10,34 @@
 
 <script>
 import io from 'socket.io-client';
+let user;
 
 export default {
   name: 'connect',
-  props: ['user'],
   data () {
     return {
-      name: this.user.name
+      name: (this.user) ? this.user.name : null
     }
+  },
+  computed: {
+    user() { return this.$store.state.user }
   },
   methods: {
     connect() {
-      this.$emit('connect', io, 'http://localhost:3000', this.name);
+      this.$store.dispatch({
+        type: 'createUser',
+        socket: io('http://localhost:3000'),
+        name: this.name
+      }).then(() => {
+        this.user.socket.emit('name::change', this.user.name);
+        this.user.socket.on('disconnect', () => {
+          this.$router.push('/');
+        });
+        this.$router.push({ name: 'Games' });
+      });
     },
     connected() {
-      if (!this.user.socket) return false;
+      if (!this.user) return false;
       if (this.user.socket) return this.user.socket.connected;
     }
   }
